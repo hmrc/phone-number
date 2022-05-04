@@ -1,0 +1,7 @@
+POST http://localhost:8080/phone-number/validate-details
+content-type: application/json
+
+{
+  "phoneNumber" : "07843274323"
+}
+
