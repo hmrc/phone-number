@@ -22,5 +22,9 @@ import play.api.Configuration
 @Singleton
 class AppConfig @Inject()(config: Configuration) {
 
-  val appName: String = config.get[String]("appName")
+  lazy val appName: String = config.get[String]("appName")
+  lazy val validateUrlProtocol = config.get[String]("microservice.services.cipphonenumber.validation.protocol")
+  lazy val validateUrlHost = config.get[String]("microservice.services.cipphonenumber.validation.host")
+  lazy val validateUrlPort = config.get[String]("microservice.services.cipphonenumber.validation.port")
+
 }

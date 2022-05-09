@@ -1,12 +1,16 @@
 package uk.gov.hmrc.cipphonenumber
 
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.{equalTo, ok, postRequestedFor, urlEqualTo}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.ws.WSClient
+import play.api.libs.json.Json
+import play.api.libs.ws.{WSClient, WSResponse}
+import uk.gov.hmrc.http.test.WireMockSupport
 
 class HealthEndpointIntegrationSpec
   extends AnyWordSpec

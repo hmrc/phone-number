@@ -1,7 +1,23 @@
-POST http://localhost:8080/phone-number/validate-details
+### Correct-number
+POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
 content-type: application/json
 
 {
   "phoneNumber" : "07843274323"
 }
 
+### Non-numeric
+POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+content-type: application/json
+
+{
+"phoneNumber" : "sajdkl"
+}
+
+### Three-digit number
+POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+content-type: application/json
+
+{
+  "phoneNumber" : "999"
+}

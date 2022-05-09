@@ -16,24 +16,19 @@
 
 package uk.gov.hmrc.cipphonenumber.controllers
 
-import play.api.libs.Jsonp.writeableOf_Jsonp
 import play.api.libs.json.JsValue
 import play.api.mvc.{AbstractController, Action, ControllerComponents}
-import uk.gov.hmrc.cipphonenumber.service.PhoneNumberValidateService
+import uk.gov.hmrc.cipphonenumber.connectors.PhoneNumberValidateConnector
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-class ValidateController @Inject()(cc: ControllerComponents, service: PhoneNumberValidateService)(implicit ec: ExecutionContext)
+@Singleton()
+class ValidateController @Inject()(cc: ControllerComponents, phoneNumberValidateConnector: PhoneNumberValidateConnector)(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
   def validatePhoneNumber(): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    service.callService.map { _ =>
-      Ok
-    }.recover {
-      case e: scala.concurrent.TimeoutException =>
-        InternalServerError("timeout")
-    }
+    phoneNumberValidateConnector.callService
   }
 }
 

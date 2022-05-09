@@ -1,3 +1,3 @@
 # microservice specific routes
 
-POST        /validate-details             uk.gov.hmrc.cipphonenumber.controllers.ValidateController.validatePhoneNumber
+POST        /validate-format             uk.gov.hmrc.cipphonenumber.controllers.ValidateController.validatePhoneNumber

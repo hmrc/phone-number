@@ -5,6 +5,8 @@ val appName = "cip-phone-number"
 
 val silencerVersion = "1.7.7"
 
+PlayKeys.devSettings += ("play.server.http.port", "8080")
+
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(
