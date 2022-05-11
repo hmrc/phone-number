@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2022 HM Revenue & Customs
  *
@@ -17,57 +16,47 @@
 
 package uk.gov.hmrc.cipphonenumber
 
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponse}
-import uk.gov.hmrc.http.test.WireMockSupport
+import play.api.http.Status
+import play.api.libs.json.{Json, OWrites}
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
+import uk.gov.hmrc.cipphonenumber.controllers.ValidateController
+import uk.gov.hmrc.cipphonenumber.models.PhoneNumber
 
-class ValidateControllerIntegrationSpec extends AnyWordSpec with Matchers with GuiceOneServerPerSuite
-  with ScalaFutures
-  with IntegrationPatience
-  with WireMockSupport{
+class ValidateControllerIntegrationSpecSpec extends AnyWordSpec with Matchers with GuiceOneServerPerSuite {
+  private val fakeRequest = FakeRequest()
+  private lazy val controller = app.injector.instanceOf[ValidateController]
+  private implicit val writes: OWrites[PhoneNumber] = Json.writes[PhoneNumber]
 
-  "Calling / Validate" should {
-    "return header validation response" when {
-      "phone number is correct" in {
-        wireMockServer.stubFor(WireMock.post("/customer-insight-platform/phone-number/validate-format").willReturn {
-          ok()
-        })
-
-        val response: WSResponse = wsClient
-          .url(resource("/customer-insight-platform/phone-number/validate"))
-          .withHttpHeaders("content-type" -> "application/json")
-          .post(Json.parse {
-            """
-              {
-                "phoneNumber" : "07890234567"
-              }
-              """.stripMargin
-          })
-          .futureValue
-
-        response.status shouldBe 200
-        wireMockServer.verify(
-          postRequestedFor(urlEqualTo("/customer-insight-platform/phone-number/validate-format"))
-            .withHeader("content-type", equalTo("application/json"))
-        )
-
-      }
+  "POST /" should {
+    "return 200 with valid UK phone number" in {
+      val result = controller.validatePhoneNumber()(
+        fakeRequest.withBody(Json.toJson(PhoneNumber("07877823456"))))
+      status(result) shouldBe Status.OK
     }
+    "return 200 with UK phone number with country code" in {
+      val result = controller.validatePhoneNumber()(
+        fakeRequest.withBody(Json.toJson(PhoneNumber("+447877823456"))))
+      status(result) shouldBe Status.OK
+    }
+    "return 400 with 3 digit emergency number" in {
+      val result = controller.validatePhoneNumber()(
+        fakeRequest.withBody(Json.toJson(PhoneNumber("999"))))
+
+      status(result) shouldBe Status.BAD_REQUEST
+      (contentAsJson(result) \ "message" ).as[String] shouldBe "Enter a valid telephone number"
+    }
+
+    "return 400 with random non-numeric characters" in {
+      val result = controller.validatePhoneNumber()(
+        fakeRequest.withBody(Json.toJson(PhoneNumber("sdjaksdj"))))
+
+      status(result) shouldBe Status.BAD_REQUEST
+      (contentAsJson(result) \ "message" ).as[String] shouldBe "Enter a valid telephone number"
+    }
+
   }
-  private lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
-  private def resource(path: String) = s"http://localhost:$port$path"
-
-  override lazy val app: Application = new GuiceApplicationBuilder()
-    .configure("microservice.services.cipphonenumber.validation.port" -> wireMockPort)
-    .build()
 }
-

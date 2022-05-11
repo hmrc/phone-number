@@ -28,7 +28,7 @@ import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
-class PhoneNumberValidateConnector @Inject()(wsClient: WSClient, config: AppConfig) extends Logging{
+class ValidateConnector @Inject()(wsClient: WSClient, config: AppConfig) extends Logging{
 
   val validateUrl = s"${config.validateUrlProtocol}://${config.validateUrlHost}:${config.validateUrlPort}/customer-insight-platform/phone-number/validate-format"
 

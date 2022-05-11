@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cipphonenumber.config
+package uk.gov.hmrc.cipphonenumber.utility
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
+import play.api.libs.json.Json
 
-@Singleton
-class AppConfig @Inject()(config: Configuration) {
+import scala.io.Source
 
-  lazy val appName: String = config.get[String]("appName")
-  lazy val validateUrlProtocol: String = config.get[String]("microservice.services.cipphonenumber.validation.protocol")
-  lazy val validateUrlHost: String = config.get[String]("microservice.services.cipphonenumber.validation.host")
-  lazy val validateUrlPort: String = config.get[String]("microservice.services.cipphonenumber.validation.port")
+trait FileLoader {
+
+  def loadFile(filename: String): String = {
+    val source  = Source.fromFile(s"test/resources/$filename")
+    val content = source.mkString
+    source.close()
+    content
+  }
+
+  def loadJson(filePath: String) = Json.parse(loadFile(filePath))
 
 }
