@@ -1,7 +1,7 @@
 
-# cip-phone-number
+## cip-phone-number
 
-## Summary
+### Summary
 Proxy/Forwarder server for cip phone-number services
 
 - cip-phone-number-validation
@@ -9,11 +9,11 @@ Proxy/Forwarder server for cip phone-number services
 - cip-phone-number-history
 - cip-phone-number-insights
 
-## Testing
-### Unit tests
+### Testing
+#### Unit tests
 `sbt clean test`
 
-### Integration tests
+#### Integration tests
 `sbt clean it:test`
 
 ### Running app
@@ -21,7 +21,7 @@ Proxy/Forwarder server for cip phone-number services
 In order to run this microservice cip-phone-number you willl need to run the downstream services first. Then run 
 `sbt clean run` and this will run on port 8080
 
-### Example query
+#### Example query
 ```
 curl --request POST \
   --url http://localhost:8080/customer-insight-platform/phone-number/validate-format \
