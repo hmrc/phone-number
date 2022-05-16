@@ -19,38 +19,37 @@ package uk.gov.hmrc.cipphonenumber.connectors
 import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.libs.ws.ahc.AhcCurlRequestLogger
-import play.api.libs.ws.{WSClient, WSResponse, writeableOf_JsValue}
+import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.Results.{BadRequest, Ok}
-import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.cipphonenumber.config.AppConfig
+import uk.gov.hmrc.http.HttpReads.{is2xx, is4xx}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
-import javax.inject.Inject
-import scala.concurrent.duration.DurationInt
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-class ValidateConnector @Inject()(wsClient: WSClient, config: AppConfig) extends Logging{
+@Singleton
+class ValidateConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig) extends Logging {
 
-  val validateUrl = s"${config.validateUrlProtocol}://${config.validateUrlHost}:${config.validateUrlPort}/customer-insight-platform/phone-number/validate-format"
+  def callService(phoneJsValue: JsValue)(implicit ec: ExecutionContext, hc: HeaderCarrier) = {
+    val validateUrl = s"${config.validateUrlProtocol}://${config.validateUrlHost}:${config.validateUrlPort}"
 
-  val validateHeaders: (String, String) = ("Content-Type", "application/json")
-
-  def callService(implicit ec: ExecutionContext, request: Request[JsValue]): Future[Result] = {
-
-    def parseResponse(response: WSResponse) = response match {
-      case _ if response.status >= 400 && response.status < 500 => BadRequest(response.body)
-      case _ if response.status == 200 => Ok
+    def parseResponse(res: HttpResponse) = res match {
+      case r if is2xx(r.status) =>  Future.successful(Ok)
+      case r if is4xx(r.status) => Future.successful(BadRequest(r.body))
     }
 
-    val response = wsClient.url(validateUrl)
-      .addHttpHeaders(validateHeaders)
-      .withRequestTimeout(10.seconds)
-      .withRequestFilter(AhcCurlRequestLogger())
-      .post(request.body)
+    val res = httpClientV2
+      .post(url"$validateUrl/customer-insight-platform/phone-number/validate-format")
+      .withBody(phoneJsValue)
+      .transform(_.withRequestFilter(AhcCurlRequestLogger()))
+      .execute[HttpResponse]
 
-    response map parseResponse recoverWith {
-        case e: Throwable =>
-          logger.error(s"Downstream call failed: ${config.validateUrlHost}")
-          Future.failed(e)
-        }
+    res flatMap parseResponse recoverWith {
+      case e: Throwable =>
+        logger.error(s"Downstream call failed: ${config.validateUrlHost}")
+        Future.failed(e)
+    }
   }
 }

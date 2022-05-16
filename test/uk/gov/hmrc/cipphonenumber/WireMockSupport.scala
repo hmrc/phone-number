@@ -33,13 +33,16 @@ trait WireMockSupport
   lazy val wireMockHost: String  =
     "localhost"
 
+  lazy val wireMockProtocol: String  =
+    "http"
+
   lazy val wireMockPort: Int =
   // we lookup a port ourselves rather than using `wireMockConfig().dynamicPort()` since it's simpler to provide
   // it up front (rather than query the running server), and allow overriding.
     PortFinder.findFreePort(portRange = 6001 to 7000)
 
   lazy val wireMockUrl: String =
-    s"http://$wireMockHost:$wireMockPort"
+    s"$wireMockProtocol://$wireMockHost:$wireMockPort"
 
   lazy val wireMockServer =
     new WireMockServer(WireMockConfiguration.wireMockConfig().port(wireMockPort))

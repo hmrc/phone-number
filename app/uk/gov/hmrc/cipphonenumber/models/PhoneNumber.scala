@@ -26,4 +26,3 @@ object PhoneNumber {
   val phoneNumberReads: Reads[PhoneNumber] =
     (__ \ "phoneNumber").read[String].map(PhoneNumber.apply)
 }
-
