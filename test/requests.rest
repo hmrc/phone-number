@@ -21,3 +21,26 @@ content-type: application/json
 {
   "phoneNumber" : "999"
 }
+
+### 20-digit number
+POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+content-type: application/json
+
+{
+  "phoneNumber" : "0123456786901234567869"
+}
+
+### 7-digit number
+POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+content-type: application/json
+
+{
+  "phoneNumber" : "0123456"
+}
+
+
+
+
+
+
+

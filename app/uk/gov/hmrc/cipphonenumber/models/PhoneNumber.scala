@@ -16,4 +16,14 @@
 
 package uk.gov.hmrc.cipphonenumber.models
 
+import play.api.libs.json.{Json, Reads, __}
+
 case class PhoneNumber(phoneNumber: String)
+
+object PhoneNumber {
+  implicit val format = Json.format[PhoneNumber]
+
+  val phoneNumberReads: Reads[PhoneNumber] =
+    (__ \ "phoneNumber").read[String].map(PhoneNumber.apply)
+}
+

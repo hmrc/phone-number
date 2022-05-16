@@ -37,8 +37,8 @@ class ValidateConnector @Inject()(wsClient: WSClient, config: AppConfig) extends
   def callService(implicit ec: ExecutionContext, request: Request[JsValue]): Future[Result] = {
 
     def parseResponse(response: WSResponse) = response match {
-      case response if response.status >= 400 && response.status < 500 => BadRequest(response.body)
-      case response if response.status == 200 => Ok
+      case _ if response.status >= 400 && response.status < 500 => BadRequest(response.body)
+      case _ if response.status == 200 => Ok
     }
 
     val response = wsClient.url(validateUrl)

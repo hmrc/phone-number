@@ -16,29 +16,48 @@
 
 package uk.gov.hmrc.cipphonenumber
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
+import com.github.tomakehurst.wiremock._
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import org.slf4j.{Logger, LoggerFactory}
+import uk.gov.hmrc.http.test.PortFinder
 
-trait WireMockSupport extends BeforeAndAfterAll with BeforeAndAfterEach { self: Suite =>
+trait WireMockSupport
+  extends BeforeAndAfterAll
+    with BeforeAndAfterEach {
+  this: Suite =>
 
-  val wireMockServer    = new WireMockServer(wireMockConfig().dynamicPort())
-  def wireMockPort: Int = wireMockServer.port
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  override def beforeAll(): Unit = {
+  lazy val wireMockHost: String  =
+    "localhost"
+
+  lazy val wireMockPort: Int =
+  // we lookup a port ourselves rather than using `wireMockConfig().dynamicPort()` since it's simpler to provide
+  // it up front (rather than query the running server), and allow overriding.
+    PortFinder.findFreePort(portRange = 6001 to 7000)
+
+  lazy val wireMockUrl: String =
+    s"http://$wireMockHost:$wireMockPort"
+
+  lazy val wireMockServer =
+    new WireMockServer(WireMockConfiguration.wireMockConfig().port(wireMockPort))
+
+  override protected def beforeAll(): Unit = {
     super.beforeAll()
     wireMockServer.start()
-    WireMock.configureFor(wireMockPort)
+    WireMock.configureFor(wireMockHost, wireMockServer.port())
+    logger.info(s"Started WireMock server on host: $wireMockHost, port: ${wireMockServer.port()}")
   }
 
-  override def afterAll(): Unit = {
-    super.afterAll()
+  override protected def afterAll(): Unit = {
     wireMockServer.stop()
+    super.afterAll()
   }
 
-  override def afterEach(): Unit = {
-    super.afterEach()
-    wireMockServer.resetAll()
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    wireMockServer.resetMappings()
   }
 }
