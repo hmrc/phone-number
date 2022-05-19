@@ -18,7 +18,6 @@ package uk.gov.hmrc.cipphonenumber.connectors
 
 import play.api.Logging
 import play.api.libs.json.JsValue
-import play.api.libs.ws.ahc.AhcCurlRequestLogger
 import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.Results.{BadRequest, Ok}
 import uk.gov.hmrc.cipphonenumber.config.AppConfig
