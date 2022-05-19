@@ -16,21 +16,20 @@
 
 package uk.gov.hmrc.cipphonenumber.controllers
 
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import play.api.http.Status
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
+import play.api.libs.json.JsValue
+import play.api.mvc.{AbstractController, Action, ControllerComponents}
+import uk.gov.hmrc.cipphonenumber.connectors.ValidateConnector
+import uk.gov.hmrc.http.HeaderCarrier
 
-class MicroserviceHelloWorldControllerSpec extends AnyWordSpec with Matchers {
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 
-  private val fakeRequest = FakeRequest("GET", "/")
-  private val controller = new MicroserviceHelloWorldController(Helpers.stubControllerComponents())
-
-  "GET /" should {
-    "return 200" in {
-      val result = controller.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
+@Singleton()
+class ValidateController @Inject()(cc: ControllerComponents, validateConnector: ValidateConnector)(implicit ec: ExecutionContext)
+  extends AbstractController(cc) {
+  implicit val hc = HeaderCarrier()
+  def validatePhoneNumber(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    validateConnector.callService(request.body)
   }
 }
+
