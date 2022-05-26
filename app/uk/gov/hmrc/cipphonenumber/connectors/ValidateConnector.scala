@@ -18,10 +18,11 @@ package uk.gov.hmrc.cipphonenumber.connectors
 
 import play.api.Logging
 import play.api.libs.json.JsValue
-import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.Results.{BadRequest, Ok}
 import uk.gov.hmrc.cipphonenumber.config.AppConfig
-import uk.gov.hmrc.http.HttpReads.{is2xx, is4xx}
+import uk.gov.hmrc.http.HttpErrorFunctions.is4xx
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.is2xx
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -34,17 +35,14 @@ class ValidateConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
   def callService(phoneJsValue: JsValue)(implicit ec: ExecutionContext, hc: HeaderCarrier) = {
     val validateUrl = s"${config.validateUrlProtocol}://${config.validateUrlHost}:${config.validateUrlPort}"
 
-    def parseResponse(res: HttpResponse) = res match {
-      case r if is2xx(r.status) =>  Future.successful(Ok)
-      case r if is4xx(r.status) => Future.successful(BadRequest(r.body))
-    }
-
-    val res = httpClientV2
+    httpClientV2
       .post(url"$validateUrl/customer-insight-platform/phone-number/validate-format")
       .withBody(phoneJsValue)
       .execute[HttpResponse]
-
-    res flatMap parseResponse recoverWith {
+      .flatMap {
+      case r if is2xx(r.status)  => Future.successful(Ok)
+      case r if is4xx(r.status)  => Future.successful(BadRequest(r.json))
+    } recoverWith {
       case e: Throwable =>
         logger.error(s"Downstream call failed: ${config.validateUrlHost}")
         Future.failed(e)

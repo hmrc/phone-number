@@ -29,36 +29,20 @@ class ValidateControllerIntegrationSpecSpec extends AnyWordSpec with Matchers wi
   private val fakeRequest = FakeRequest()
   private lazy val controller = app.injector.instanceOf[ValidateController]
 
-
   "POST /" should {
     "return 200 with valid UK phone number" in new SetUp {
       val result = controller.validatePhoneNumber()(
         fakeRequest.withBody(Json.toJson(PhoneNumber("07877823456"))))
       status(result) shouldBe Status.OK
     }
-    "return 200 with UK phone number with country code" in new SetUp {
+
+    "return 400 with 3 digit emergency number" in new SetUp {
       val result = controller.validatePhoneNumber()(
-        fakeRequest.withBody(Json.toJson(PhoneNumber("+447877823456"))))
-      status(result) shouldBe Status.OK
+        fakeRequest.withBody(Json.toJson(PhoneNumber("999"))))
+
+      status(result) shouldBe Status.BAD_REQUEST
+      (contentAsJson(result) \ "message" ).as[String] shouldBe "Enter a valid telephone number"
     }
-//    TODO Enable after error handling ticket
-//    "return 400 with 3 digit emergency number" in {
-//      val result = controller.validatePhoneNumber()(
-//        fakeRequest.withBody(Json.toJson(PhoneNumber("999"))))
-//
-//      status(result) shouldBe Status.BAD_REQUEST
-//      (contentAsJson(result) \ "message" ).as[String] shouldBe "Enter a valid telephone number"
-//    }
-
-//    TODO Enable after error handling ticket
-//    "return 400 with random non-numeric characters" in {
-//      val result = controller.validatePhoneNumber()(
-//        fakeRequest.withBody(Json.toJson(PhoneNumber("sdjaksdj"))))
-//
-//      status(result) shouldBe Status.BAD_REQUEST
-//      (contentAsJson(result) \ "message" ).as[String] shouldBe "Enter a valid telephone number"
-//    }
-
   }
 
   trait SetUp {
