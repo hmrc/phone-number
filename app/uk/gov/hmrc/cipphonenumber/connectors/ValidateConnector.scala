@@ -35,7 +35,7 @@ class ValidateConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
     val validateUrl = s"${config.validateUrlProtocol}://${config.validateUrlHost}:${config.validateUrlPort}"
 
     def parseResponse(res: HttpResponse) = res match {
-      case r if is2xx(r.status) =>  Future.successful(Ok)
+      case r if is2xx(r.status) => Future.successful(Ok)
       case r if is4xx(r.status) => Future.successful(BadRequest(r.body))
     }
 
