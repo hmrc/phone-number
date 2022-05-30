@@ -18,8 +18,25 @@ Proxy/Forwarder server for cip phone-number services
 
 ### Running app
 
-In order to run this microservice cip-phone-number you willl need to run the downstream services first. Then run 
-`sbt clean run` and this will run on port 9000. To run from a specific port use `sbt clean "run 8080"` e.g. port 8080
+sm --start CIP_PHONE_NUMBER_VALIDATION_ALL
+
+Run the services against the current versions in dev, stop the CIP_PHONE_NUMBER service and start manually
+
+    sm --start CIP_PHONE_NUMBER_VALIDATION_ALL -f
+    sm --stop CIP_PHONE_NUMBER
+    cd cip-phone-number
+    sbt 'run 6081'
+
+For reference here are the details for running each of the services individually
+
+    cd cip-phone-number-frontend
+    sbt 'run 6080'
+ 
+    cd cip-phone-number
+    sbt 'run 6081'
+
+    cd cip-phone-number-validation
+    sbt 'run 6082'
 
 #### Example query
 ```
