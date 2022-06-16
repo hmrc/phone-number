@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.cipphonenumber.config
 
-import javax.inject.{Inject, Singleton}
 import play.api.Configuration
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AppConfig @Inject()(config: Configuration) {
 
-  lazy val appName: String = config.get[String]("appName")
   lazy val validateUrlProtocol: String = config.get[String]("microservice.services.cipphonenumber.validation.protocol")
   lazy val validateUrlHost: String = config.get[String]("microservice.services.cipphonenumber.validation.host")
   lazy val validateUrlPort: String = config.get[String]("microservice.services.cipphonenumber.validation.port")
+  lazy val verificationUrlProtocol: String = config.get[String]("microservice.services.cipphonenumber.verification.protocol")
+  lazy val verificationUrlHost: String = config.get[String]("microservice.services.cipphonenumber.verification.host")
+  lazy val verificationUrlPort: String = config.get[String]("microservice.services.cipphonenumber.verification.port")
 
 }
-

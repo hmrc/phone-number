@@ -20,10 +20,11 @@ import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.Result
-import play.api.mvc.Results.{BadRequest, Ok}
+import play.api.mvc.Results.{BadRequest, InternalServerError, Ok}
 import uk.gov.hmrc.cipphonenumber.config.AppConfig
 import uk.gov.hmrc.http.HttpErrorFunctions.{is2xx, is4xx}
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.is5xx
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -31,21 +32,25 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ValidateConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
+class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig) extends Logging {
 
-  def callService(phoneJsValue: JsValue)(implicit hc: HeaderCarrier): Future[Result] = {
-    val validateUrl = s"${config.validateUrlProtocol}://${config.validateUrlHost}:${config.validateUrlPort}"
+  val verificationUrl = s"${config.verificationUrlProtocol}://${config.verificationUrlHost}:${config.verificationUrlPort}"
+  val verifyDetailsUrl = verificationUrl + "/customer-insight-platform/phone-number/verify"
+
+  def callService(phoneJsValue: JsValue)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    logger.info(s"Calling $verifyDetailsUrl")
 
     httpClientV2
-      .post(url"$validateUrl/customer-insight-platform/phone-number/validate")
+      .post(url"$verifyDetailsUrl")
       .withBody(phoneJsValue)
       .execute[HttpResponse]
       .flatMap {
-        case r if is2xx(r.status) => Future.successful(Ok)
-        case r if is4xx(r.status) => Future.successful(BadRequest(r.json))
+        case r if is2xx(r.status)  => Future.successful(Ok(r.json))
+        case r if is4xx(r.status)  => Future.successful(BadRequest(r.json))
+        case r if is5xx(r.status)  => Future.successful(InternalServerError)
       } recoverWith {
       case e: Throwable =>
-        logger.error(s"Downstream call failed: ${config.validateUrlHost}")
+        logger.error(s"Downstream call failed: ${config.verificationUrlHost}")
         Future.failed(e)
     }
   }

@@ -1,5 +1,5 @@
 ### Correct-number
-POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+POST http://localhost:6081/customer-insight-platform/phone-number/validate
 content-type: application/json
 
 {
@@ -7,7 +7,7 @@ content-type: application/json
 }
 
 ### Non-numeric
-POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+POST http://localhost:6081/customer-insight-platform/phone-number/validate
 content-type: application/json
 
 {
@@ -15,7 +15,7 @@ content-type: application/json
 }
 
 ### Three-digit number
-POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+POST http://localhost:6081/customer-insight-platform/phone-number/validate
 content-type: application/json
 
 {
@@ -23,7 +23,7 @@ content-type: application/json
 }
 
 ### 20-digit number
-POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+POST http://localhost:6081/customer-insight-platform/phone-number/validate
 content-type: application/json
 
 {
@@ -31,13 +31,27 @@ content-type: application/json
 }
 
 ### 7-digit number
-POST http://localhost:8080/customer-insight-platform/phone-number/validate-format
+POST http://localhost:6081/customer-insight-platform/phone-number/validate
 content-type: application/json
 
 {
   "phoneNumber" : "0123456"
 }
 
+### Correct number
+POST http://localhost:6081/customer-insight-platform/phone-number/verify
+content-type: application/json
 
+{
+  "phoneNumber" : "07843274323"
+}
+
+### incorrect-number
+POST http://localhost:6081/customer-insight-platform/phone-number/verify
+content-type: application/json
+
+{
+  "phoneNumber" : "wed"
+}
 
 
