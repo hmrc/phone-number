@@ -50,6 +50,7 @@ class ValidateConnectorSpec extends AnyWordSpec
 
       val result = validateConnector.callService(Json.parse(s"""{"phoneNumber" : "$phoneNumber"}"""))
       status(result) shouldBe OK
+      val actual = validateConnector.callService(Json.parse(s"""{"phoneNumber" : "$phoneNumber"}"""))
 
       verify(
         postRequestedFor(urlEqualTo(url))

@@ -26,5 +26,8 @@ class AppConfig @Inject()(config: Configuration) {
   lazy val validateUrlProtocol: String = config.get[String]("microservice.services.cipphonenumber.validation.protocol")
   lazy val validateUrlHost: String = config.get[String]("microservice.services.cipphonenumber.validation.host")
   lazy val validateUrlPort: String = config.get[String]("microservice.services.cipphonenumber.validation.port")
+  lazy val verificationUrlProtocol: String = config.get[String]("microservice.services.cipphonenumber.verification.protocol")
+  lazy val verificationUrlHost: String = config.get[String]("microservice.services.cipphonenumber.verification.host")
+  lazy val verificationUrlPort: String = config.get[String]("microservice.services.cipphonenumber.verification.port")
 
 }
