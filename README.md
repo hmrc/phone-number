@@ -2,6 +2,7 @@
 ## cip-phone-number
 
 ### Summary
+
 Proxy/Forwarder server for cip phone-number services
 
 - cip-phone-number-validation
@@ -10,19 +11,20 @@ Proxy/Forwarder server for cip phone-number services
 - cip-phone-number-insights
 
 ### Testing
+
 #### Unit tests
-`sbt clean test`
+    sbt clean test
 
 #### Integration tests
-`sbt clean it:test`
+    sbt clean it:test
 
 ### Running app
 
-sm --start CIP_PHONE_NUMBER_VALIDATION_ALL
+    sm --start CIP_PHONE_NUMBER_ALL
 
 Run the services against the current versions in dev, stop the CIP_PHONE_NUMBER service and start manually
 
-    sm --start CIP_PHONE_NUMBER_VALIDATION_ALL -f
+    sm --start CIP_PHONE_NUMBER_ALL -r
     sm --stop CIP_PHONE_NUMBER
     cd cip-phone-number
     sbt 'run 6081'
@@ -41,12 +43,10 @@ For reference here are the details for running each of the services individually
 #### Example query
 ```
 curl --request POST \
-  --url http://localhost:9000/customer-insight-platform/phone-number/validate-format \
+  --url http://localhost:6081/customer-insight-platform/phone-number/validate-format \
   --header 'content-type: application/json' \
   --data '{"phoneNumber" : "07843274323"}'
 ```
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
-
-
