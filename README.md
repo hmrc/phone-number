@@ -5,10 +5,10 @@
 
 Proxy/Forwarder server for cip phone-number services
 
-- cip-phone-number-validation
-- cip-phone-number-verification
-- cip-phone-number-history
-- cip-phone-number-insights
+The default port for cip-phone-number-frontend is 6080
+The default port for cip-phone-number is port 6081
+The default port for cip-phone-number-validation is port 6082
+The default port for cip-phone-number-verification is port 6083
 
 ### Testing
 
@@ -27,26 +27,42 @@ Run the services against the current versions in dev, stop the CIP_PHONE_NUMBER 
     sm --start CIP_PHONE_NUMBER_ALL -r
     sm --stop CIP_PHONE_NUMBER
     cd cip-phone-number
-    sbt 'run 6081'
+    sbt run
 
 For reference here are the details for running each of the services individually
 
     cd cip-phone-number-frontend
-    sbt 'run 6080'
+    sbt run
  
     cd cip-phone-number
-    sbt 'run 6081'
+    sbt run
 
     cd cip-phone-number-validation
-    sbt 'run 6082'
+    sbt run
 
-#### Example query
-```
-curl --request POST \
-  --url http://localhost:6081/customer-insight-platform/phone-number/validate-format \
-  --header 'content-type: application/json' \
-  --data '{"phoneNumber" : "07843274323"}'
-```
+    cd cip-phone-number-verification
+    sbt run
+
+### Curl microservice (for curl microservice build jobs)
+
+#### Validate
+
+    -XPOST -H "Content-type: application/json" -d '{
+	    "phoneNumber": "<phone-number>"
+    }' 'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/validate-format'
+
+#### Verify OTP
+
+    -XPOST -H "Content-type: application/json" -d '{
+	    "phoneNumber": "<phone-number>",
+        "passcode": "<passcode>"
+    }' 'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/otp'
+
+#### Check notification status
+
+    -XGET -H "Content-type: application/json"
+    'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/notifications/<notificationId>'
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").

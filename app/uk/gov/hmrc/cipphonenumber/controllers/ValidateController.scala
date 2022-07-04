@@ -17,17 +17,15 @@
 package uk.gov.hmrc.cipphonenumber.controllers
 
 import play.api.libs.json.JsValue
-import play.api.mvc.{AbstractController, Action, ControllerComponents}
+import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.cipphonenumber.connectors.ValidateConnector
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
 
 @Singleton()
-class ValidateController @Inject()(cc: ControllerComponents, validateConnector: ValidateConnector)(implicit ec: ExecutionContext)
-  extends AbstractController(cc) {
-  implicit val hc = HeaderCarrier()
+class ValidateController @Inject()(cc: ControllerComponents, validateConnector: ValidateConnector)
+  extends BackendController(cc) {
   def validatePhoneNumber(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     validateConnector.callService(request.body)
   }

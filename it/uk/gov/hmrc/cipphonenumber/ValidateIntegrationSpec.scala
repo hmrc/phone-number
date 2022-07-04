@@ -22,14 +22,14 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
-class HealthEndpointIntegrationSpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience
-    with GuiceOneServerPerSuite {
+class ValidateIntegrationSpec extends AnyWordSpec
+  with Matchers
+  with ScalaFutures
+  with IntegrationPatience
+  with GuiceOneServerPerSuite {
 
   private val wsClient = app.injector.instanceOf[WSClient]
   private val baseUrl = s"http://localhost:$port"
@@ -37,19 +37,32 @@ class HealthEndpointIntegrationSpec
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .configure("metrics.enabled" -> false)
+      .configure("auditing.enabled" -> false)
       .build()
 
-  "service health endpoint" should {
-    "respond with 200 status" in {
+  "Validate" should {
+    "return 200 with valid UK phone number" in {
       val response =
         wsClient
-          .url(s"$baseUrl/ping/ping")
-          .get()
+          .url(s"$baseUrl/customer-insight-platform/phone-number/validate-format")
+          .post(Json.parse {
+            """{"phoneNumber": "07890056734"}""".stripMargin
+          })
           .futureValue
 
       response.status shouldBe 200
     }
+
+    "return 400 with 3 digit emergency number" in {
+      val response = wsClient
+        .url(s"$baseUrl/customer-insight-platform/phone-number/validate-format")
+        .post(Json.parse {
+          """{"phoneNumber": "999"}""".stripMargin
+        })
+        .futureValue
+
+      response.status shouldBe 400
+      (response.json \ "message").as[String] shouldBe "Enter a valid telephone number"
+    }
   }
 }
-
-
