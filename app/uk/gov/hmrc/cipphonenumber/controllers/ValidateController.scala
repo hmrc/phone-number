@@ -30,4 +30,3 @@ class ValidateController @Inject()(cc: ControllerComponents, validateConnector: 
     validateConnector.callService(request.body)
   }
 }
-

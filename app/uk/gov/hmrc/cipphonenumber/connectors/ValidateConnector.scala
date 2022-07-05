@@ -37,7 +37,7 @@ class ValidateConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
     val validateUrl = s"${config.validateUrlProtocol}://${config.validateUrlHost}:${config.validateUrlPort}"
 
     httpClientV2
-      .post(url"$validateUrl/customer-insight-platform/phone-number/validate-format")
+      .post(url"$validateUrl/customer-insight-platform/phone-number/validate")
       .withBody(phoneJsValue)
       .execute[HttpResponse]
       .flatMap {
