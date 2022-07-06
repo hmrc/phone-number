@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.cipphonenumber.config
 
-import javax.inject.{Inject, Singleton}
 import play.api.Configuration
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AppConfig @Inject()(config: Configuration) {
@@ -27,4 +28,3 @@ class AppConfig @Inject()(config: Configuration) {
   lazy val validateUrlPort: String = config.get[String]("microservice.services.cipphonenumber.validation.port")
 
 }
-
