@@ -38,6 +38,20 @@ content-type: application/json
   "phoneNumber" : "0123456"
 }
 
+### Correct number
+POST http://localhost:6081/customer-insight-platform/phone-number/verify
+content-type: application/json
 
+{
+  "phoneNumber" : "07843274323"
+}
+
+### incorrect-number
+POST http://localhost:6081/customer-insight-platform/phone-number/verify
+content-type: application/json
+
+{
+  "phoneNumber" : "wed"
+}
 
 
