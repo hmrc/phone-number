@@ -51,12 +51,11 @@ For reference here are the details for running each of the services individually
 	    "phoneNumber": "<phone-number>"
     }' 'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/validate'
 
-#### Verify OTP
+#### Verify
 
     -XPOST -H "Content-type: application/json" -d '{
-	    "phoneNumber": "<phone-number>",
-        "passcode": "<passcode>"
-    }' 'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/verify/otp'
+	    "phoneNumber": "<phone-number>"
+    }' 'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/verify'
 
 #### Check notification status
 
