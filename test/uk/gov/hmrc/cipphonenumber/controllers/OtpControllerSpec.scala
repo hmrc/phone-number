@@ -32,20 +32,20 @@ import uk.gov.hmrc.http.test.HttpClientV2Support
 
 import scala.concurrent.Future
 
-class VerifyControllerSpec extends AnyWordSpec
+class OtpControllerSpec extends AnyWordSpec
   with Matchers
   with MockitoSugar
   with HttpClientV2Support {
 
   private val fakeRequest = FakeRequest()
   private val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
-  private val controller = new VerifyController(Helpers.stubControllerComponents(), mockVerifyConnector)
+  private val controller = new OtpController(Helpers.stubControllerComponents(), mockVerifyConnector)
 
-  "verify" should {
+  "verifyOtp" should {
     "return 200 for valid request" in {
-      when(mockVerifyConnector.verify(any[JsValue])(any[HeaderCarrier])).thenReturn(Future.successful(Ok))
+      when(mockVerifyConnector.verifyOtp(any[JsValue])(any[HeaderCarrier])).thenReturn(Future.successful(Ok))
 
-      val actual = controller.verify(
+      val actual = controller.verifyOtp(
         fakeRequest.withBody(Json.parse("""{"phoneNumber":"01292123456"}"""))
       )
 

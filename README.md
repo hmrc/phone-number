@@ -57,10 +57,12 @@ For reference here are the details for running each of the services individually
 	    "phoneNumber": "<phone-number>"
     }' 'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/verify'
 
-#### Check notification status
+#### Verify OTP
 
-    -XGET -H "Content-type: application/json"
-    'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/notifications/<notificationId>'
+    -XPOST -H "Content-type: application/json" -d '{
+	    "phoneNumber": "<phone-number>",
+        "passcode": "<passcode>"
+    }' 'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/verify/otp'
 
 ### License
 

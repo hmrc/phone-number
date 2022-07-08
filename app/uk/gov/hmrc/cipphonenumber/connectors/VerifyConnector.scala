@@ -32,25 +32,45 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig) extends Logging {
+class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
+                               (implicit ec: ExecutionContext) extends Logging {
 
-  val verificationUrl = s"${config.verificationUrlProtocol}://${config.verificationUrlHost}:${config.verificationUrlPort}"
-  val verifyDetailsUrl = verificationUrl + "/customer-insight-platform/phone-number/verify"
+  private val verificationServiceHost = s"${config.verificationUrlProtocol}://${config.verificationUrlHost}:${config.verificationUrlPort}"
+  private val verifyUrl = verificationServiceHost + "/customer-insight-platform/phone-number/verify"
+  private val verifyOtpUrl = verificationServiceHost + "/customer-insight-platform/phone-number/verify/otp"
 
-  def callService(phoneJsValue: JsValue)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    logger.info(s"Calling $verifyDetailsUrl")
+  def verify(body: JsValue)(implicit hc: HeaderCarrier): Future[Result] = {
+    logger.info(s"Calling $verifyUrl")
 
     httpClientV2
-      .post(url"$verifyDetailsUrl")
-      .withBody(phoneJsValue)
+      .post(url"$verifyUrl")
+      .withBody(body)
       .execute[HttpResponse]
       .flatMap {
-        case r if is2xx(r.status)  => Future.successful(Ok(r.json))
-        case r if is4xx(r.status)  => Future.successful(BadRequest(r.json))
-        case r if is5xx(r.status)  => Future.successful(InternalServerError)
+        case r if is2xx(r.status) => Future.successful(Ok(r.json))
+        case r if is4xx(r.status) => Future.successful(BadRequest(r.json))
+        case r if is5xx(r.status) => Future.successful(InternalServerError)
       } recoverWith {
       case e: Throwable =>
-        logger.error(s"Downstream call failed: ${config.verificationUrlHost}")
+        logger.error(s"Upstream call failed: ${config.verificationUrlHost}")
+        Future.failed(e)
+    }
+  }
+
+  def verifyOtp(body: JsValue)(implicit hc: HeaderCarrier): Future[Result] = {
+    logger.info(s"Calling $verifyOtpUrl")
+
+    httpClientV2
+      .post(url"$verifyOtpUrl")
+      .withBody(body)
+      .execute[HttpResponse]
+      .flatMap {
+        case r if is2xx(r.status) => Future.successful(Ok(r.json))
+        case r if is4xx(r.status) => Future.successful(BadRequest(r.json))
+        case r if is5xx(r.status) => Future.successful(InternalServerError)
+      } recoverWith {
+      case e: Throwable =>
+        logger.error(s"Upstream call failed: ${config.verificationUrlHost}")
         Future.failed(e)
     }
   }
