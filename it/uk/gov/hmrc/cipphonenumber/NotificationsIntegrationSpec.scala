@@ -20,38 +20,42 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, writeableOf_JsValue}
+import uk.gov.hmrc.cipphonenumber.utils.DataSteps
 
-class VerifyEndpointIntegrationSpec
+class NotificationsIntegrationSpec
   extends AnyWordSpec
     with Matchers
     with ScalaFutures
     with IntegrationPatience
-    with GuiceOneServerPerSuite {
+    with GuiceOneServerPerSuite
+    with DataSteps {
 
-  private val wsClient = app.injector.instanceOf[WSClient]
-  private val baseUrl = s"http://localhost:$port"
+  "/notifications" should {
+    "respond with 200 status with valid notification id" in {
+      //generate otp
+      val verifyResponse = verify("07849123456").futureValue
 
-  "verify details endpoint" should {
-    "respond with 200 status when data is valid and result of verification is verified" in {
+      val notificationId = verifyResponse.json.\("notificationId")
+
       val response =
         wsClient
-          .url(s"$baseUrl/customer-insight-platform/phone-number/verify")
-          .post(Json.parse("""{"phoneNumber" : "07843274323"}"""))
+          .url(s"$baseUrl/customer-insight-platform/phone-number/notifications/$notificationId")
+          .get
           .futureValue
 
       response.status shouldBe 200
+      response.json \ "code" shouldBe 102
+      response.json \ "message" shouldBe "Message has been sent"
     }
 
-    "respond with 400 status when data is invalid" in {
+    "respond with 404 status when notification id not found" in {
       val response =
         wsClient
-          .url(s"$baseUrl/customer-insight-platform/phone-number/verify")
-          .post(Json.parse("""{"phoneNumber" : "aaaa"}"""))
+          .url(s"$baseUrl/customer-insight-platform/phone-number/notifications/a283b760-f173-11ec-8ea0-0242ac120002")
+          .get
           .futureValue
 
-      response.status shouldBe 400
+      response.status shouldBe 404
     }
   }
 }

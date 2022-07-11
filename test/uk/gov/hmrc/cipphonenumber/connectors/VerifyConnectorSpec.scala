@@ -97,6 +97,64 @@ class VerifyConnectorSpec extends AnyWordSpec
     }
   }
 
+  "status" should {
+    val url: String = "/customer-insight-platform/phone-number/notifications/%s"
+
+    "return HttpResponse OK when upstream returns 200" in new Setup {
+      val notificationId = "test-notification-id"
+
+      stubFor(
+        get(urlEqualTo(url.format(notificationId)))
+          .willReturn(aResponse().withBody("""{"m":"m"}""")
+          )
+      )
+
+      val result = verifyConnector.status(notificationId)
+
+      status(result) shouldBe OK
+      contentAsJson(result) shouldBe Json.parse("""{"m":"m"}""")
+
+      verify(
+        getRequestedFor(urlEqualTo(url.format(notificationId)))
+      )
+    }
+
+    "return HttpResponse BAD_REQUEST when upstream returns 400" in new Setup {
+      val notificationId = "test-notification-id"
+
+      stubFor(
+        get(urlEqualTo(url.format(notificationId)))
+          .willReturn(badRequest().withBody("""{"message": "invalid"}"""))
+      )
+
+      val result = verifyConnector.status(notificationId)
+
+      status(result) shouldBe BAD_REQUEST
+      contentAsJson(result) shouldBe Json.parse("""{"message": "invalid"}""")
+
+      verify(
+        getRequestedFor(urlEqualTo(url.format(notificationId)))
+      )
+    }
+
+    "return HttpResponse INTERNAL_SERVER_ERROR when upstream returns 500" in new Setup {
+      val notificationId = "test-notification-id"
+
+      stubFor(
+        get(urlEqualTo(url.format(notificationId)))
+          .willReturn(serverError)
+      )
+
+      val result = verifyConnector.status(notificationId)
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+
+      verify(
+        getRequestedFor(urlEqualTo(url.format(notificationId)))
+      )
+    }
+  }
+
   "verifyOtp" should {
     val url: String = "/customer-insight-platform/phone-number/verify/otp"
 
