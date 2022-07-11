@@ -18,16 +18,16 @@ package uk.gov.hmrc.cipphonenumber.controllers
 
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.cipphonenumber.connectors.ValidateConnector
+import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton()
-class ValidateController @Inject()(cc: ControllerComponents, validateConnector: ValidateConnector)
+class OtpController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector)
   extends BackendController(cc) {
 
-  def validate: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    validateConnector.callService(request.body)
+  def verifyOtp: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    verifyConnector.verifyOtp(request.body)
   }
 }

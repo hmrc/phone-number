@@ -20,20 +20,18 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, writeableOf_JsValue}
 
 class VerifyEndpointIntegrationSpec
   extends AnyWordSpec
-     with Matchers
-     with ScalaFutures
-     with IntegrationPatience
-     with GuiceOneServerPerSuite {
+    with Matchers
+    with ScalaFutures
+    with IntegrationPatience
+    with GuiceOneServerPerSuite {
 
   private val wsClient = app.injector.instanceOf[WSClient]
-  private val baseUrl  = s"http://localhost:$port"
+  private val baseUrl = s"http://localhost:$port"
 
   "verify details endpoint" should {
     "respond with 200 status when data is valid and result of verification is verified" in {
@@ -56,7 +54,4 @@ class VerifyEndpointIntegrationSpec
       response.status shouldBe 400
     }
   }
-
 }
-
-

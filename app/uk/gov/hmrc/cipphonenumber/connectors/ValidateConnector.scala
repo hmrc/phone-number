@@ -31,7 +31,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ValidateConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
+class ValidateConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
+                                 (implicit ec: ExecutionContext) extends Logging {
 
   def callService(phoneJsValue: JsValue)(implicit hc: HeaderCarrier): Future[Result] = {
     val validateUrl = s"${config.validateUrlProtocol}://${config.validateUrlHost}:${config.validateUrlPort}"

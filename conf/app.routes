@@ -1,4 +1,5 @@
 # microservice specific routes
 
-POST        /validate             uk.gov.hmrc.cipphonenumber.controllers.ValidateController.validatePhoneNumber
-POST        /verify               uk.gov.hmrc.cipphonenumber.controllers.VerifyController.verifyPhoneNumber
+POST        /validate             uk.gov.hmrc.cipphonenumber.controllers.ValidateController.validate
+POST        /verify               uk.gov.hmrc.cipphonenumber.controllers.VerifyController.verify
+POST        /verify/otp           uk.gov.hmrc.cipphonenumber.controllers.OtpController.verifyOtp

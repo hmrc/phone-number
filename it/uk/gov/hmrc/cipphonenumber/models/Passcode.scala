@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cipphonenumber.controllers
+package uk.gov.hmrc.cipphonenumber.models
 
-import play.api.libs.json.JsValue
-import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.cipphonenumber.connectors.ValidateConnector
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import play.api.libs.json.{Json, Reads}
 
-import javax.inject.{Inject, Singleton}
+case class Passcode(phoneNumber: String, passcode: String)
 
-@Singleton()
-class ValidateController @Inject()(cc: ControllerComponents, validateConnector: ValidateConnector)
-  extends BackendController(cc) {
-
-  def validate: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    validateConnector.callService(request.body)
-  }
+object Passcode {
+  implicit val reads: Reads[Passcode] = Json.reads[Passcode]
 }

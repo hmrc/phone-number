@@ -17,19 +17,17 @@
 package uk.gov.hmrc.cipphonenumber.controllers
 
 import play.api.libs.json.JsValue
-import play.api.mvc.{AbstractController, Action, ControllerComponents}
+import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
 
 @Singleton()
-class VerifyController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector)(implicit ec: ExecutionContext)
+class VerifyController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector)
   extends BackendController(cc) {
 
-  def verifyPhoneNumber(): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    verifyConnector.callService(request.body)
+  def verify: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    verifyConnector.verify(request.body)
   }
 }
