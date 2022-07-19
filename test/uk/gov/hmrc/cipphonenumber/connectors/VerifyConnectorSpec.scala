@@ -40,7 +40,7 @@ class VerifyConnectorSpec extends AnyWordSpec
     val url: String = "/customer-insight-platform/phone-number/verify"
 
     "return HttpResponse OK when upstream returns 200" in new Setup {
-      val phoneNumber = "07843274323"
+      val phoneNumber = "test"
 
       stubFor(
         post(urlEqualTo(url))
@@ -60,17 +60,17 @@ class VerifyConnectorSpec extends AnyWordSpec
     }
 
     "return HttpResponse BAD_REQUEST when upstream returns 400" in new Setup {
-      val phoneNumber = "07843274323"
+      val phoneNumber = "test"
 
       stubFor(
         post(urlEqualTo(url))
-          .willReturn(badRequest().withBody("""{"message": "invalid"}"""))
+          .willReturn(badRequest().withBody("""{"m": "m"}"""))
       )
 
       val result = verifyConnector.verify(Json.parse(s"""{"phoneNumber": "$phoneNumber"}"""))
 
       status(result) shouldBe BAD_REQUEST
-      contentAsJson(result) shouldBe Json.parse("""{"message": "invalid"}""")
+      contentAsJson(result) shouldBe Json.parse("""{"m": "m"}""")
 
       verify(
         postRequestedFor(urlEqualTo(url))
@@ -79,7 +79,7 @@ class VerifyConnectorSpec extends AnyWordSpec
     }
 
     "return HttpResponse INTERNAL_SERVER_ERROR when upstream returns 500" in new Setup {
-      val phoneNumber = "07843274323"
+      val phoneNumber = "test"
 
       stubFor(
         post(urlEqualTo(url))
@@ -124,13 +124,13 @@ class VerifyConnectorSpec extends AnyWordSpec
 
       stubFor(
         get(urlEqualTo(url.format(notificationId)))
-          .willReturn(badRequest().withBody("""{"message": "invalid"}"""))
+          .willReturn(badRequest().withBody("""{"m": "m"}"""))
       )
 
       val result = verifyConnector.status(notificationId)
 
       status(result) shouldBe BAD_REQUEST
-      contentAsJson(result) shouldBe Json.parse("""{"message": "invalid"}""")
+      contentAsJson(result) shouldBe Json.parse("""{"m": "m"}""")
 
       verify(
         getRequestedFor(urlEqualTo(url.format(notificationId)))
@@ -159,8 +159,8 @@ class VerifyConnectorSpec extends AnyWordSpec
     val url: String = "/customer-insight-platform/phone-number/verify/otp"
 
     "return HttpResponse OK when upstream returns 200" in new Setup {
-      val phoneNumber = "07843274323"
-      val passcode = "123456"
+      val phoneNumber = "test"
+      val passcode = "test"
 
       stubFor(
         post(urlEqualTo(url))
@@ -188,12 +188,12 @@ class VerifyConnectorSpec extends AnyWordSpec
     }
 
     "return HttpResponse BAD_REQUEST when upstream returns 400" in new Setup {
-      val phoneNumber = "07843274323"
-      val passcode = "123456"
+      val phoneNumber = "test"
+      val passcode = "test"
 
       stubFor(
         post(urlEqualTo(url))
-          .willReturn(badRequest().withBody("""{"message": "invalid"}"""))
+          .willReturn(badRequest().withBody("""{"m": "m"}"""))
       )
 
       val result = verifyConnector.verifyOtp(Json.parse(
@@ -203,7 +203,7 @@ class VerifyConnectorSpec extends AnyWordSpec
             }""".stripMargin))
 
       status(result) shouldBe BAD_REQUEST
-      contentAsJson(result) shouldBe Json.parse("""{"message": "invalid"}""")
+      contentAsJson(result) shouldBe Json.parse("""{"m": "m"}""")
 
       verify(
         postRequestedFor(urlEqualTo(url))
@@ -216,8 +216,8 @@ class VerifyConnectorSpec extends AnyWordSpec
     }
 
     "return HttpResponse INTERNAL_SERVER_ERROR when upstream returns 500" in new Setup {
-      val phoneNumber = "07843274323"
-      val passcode = "123456"
+      val phoneNumber = "test"
+      val passcode = "test"
 
       stubFor(
         post(urlEqualTo(url))

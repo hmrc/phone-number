@@ -45,12 +45,6 @@ For reference here are the details for running each of the services individually
 
 ### Curl microservice (for curl microservice build jobs)
 
-#### Validate
-
-    -XPOST -H "Content-type: application/json" -d '{
-	    "phoneNumber": "<phone-number>"
-    }' 'https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number/validate'
-
 #### Verify
 
     -XPOST -H "Content-type: application/json" -d '{
