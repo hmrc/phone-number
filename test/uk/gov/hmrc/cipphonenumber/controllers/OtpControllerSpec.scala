@@ -46,7 +46,7 @@ class OtpControllerSpec extends AnyWordSpec
       when(mockVerifyConnector.verifyOtp(any[JsValue])(any[HeaderCarrier])).thenReturn(Future.successful(Ok))
 
       val actual = controller.verifyOtp(
-        fakeRequest.withBody(Json.parse("""{"phoneNumber":"01292123456"}"""))
+        fakeRequest.withBody(Json.parse("""{"phoneNumber":"test"}"""))
       )
 
       status(actual) shouldBe OK

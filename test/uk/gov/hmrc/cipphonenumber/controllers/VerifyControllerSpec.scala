@@ -46,7 +46,7 @@ class VerifyControllerSpec extends AnyWordSpec
       when(mockVerifyConnector.verify(any[JsValue])(any[HeaderCarrier])).thenReturn(Future.successful(Ok))
 
       val actual = controller.verify(
-        fakeRequest.withBody(Json.parse("""{"phoneNumber":"01292123456"}"""))
+        fakeRequest.withBody(Json.parse("""{"phoneNumber":"test"}"""))
       )
 
       status(actual) shouldBe OK
