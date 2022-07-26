@@ -20,9 +20,10 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.libs.ws.ahc.AhcCurlRequestLogger
 import uk.gov.hmrc.cipphonenumber.utils.DataSteps
 
-class NotificationsIntegrationSpec
+class NotificationIntegrationSpec
   extends AnyWordSpec
     with Matchers
     with ScalaFutures
@@ -40,18 +41,21 @@ class NotificationsIntegrationSpec
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/notifications/$notificationId")
+          .withRequestFilter(AhcCurlRequestLogger())
           .get
           .futureValue
 
       response.status shouldBe 200
-      response.json \ "code" shouldBe 102
-      response.json \ "message" shouldBe "Message has been sent"
+      (response.json \ "code").as[Int] shouldBe 105
+      (response.json \ "message").as[String] shouldBe "Message was delivered successfully"
     }
 
-    "respond with 404 status when notification id not found" in {
+    //    TODO: Fix as part of CAV-256
+    "respond with 404 status when notification id not found" ignore {
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/notifications/a283b760-f173-11ec-8ea0-0242ac120002")
+          .withRequestFilter(AhcCurlRequestLogger())
           .get
           .futureValue
 

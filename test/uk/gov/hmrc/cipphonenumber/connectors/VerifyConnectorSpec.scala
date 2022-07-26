@@ -21,9 +21,9 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.OK
 import play.api.libs.json.Json
-import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.cipphonenumber.config.AppConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
@@ -39,60 +39,21 @@ class VerifyConnectorSpec extends AnyWordSpec
   "verify" should {
     val url: String = "/customer-insight-platform/phone-number/verify"
 
-    "return HttpResponse OK when upstream returns 200" in new Setup {
-      val phoneNumber = "test"
-
+    "delegate to http client" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-          .willReturn(aResponse().withBody("""{"m":"m"}""")
+          .willReturn(aResponse().withBody("""{"res":"res"}""")
           )
       )
 
-      val result = verifyConnector.verify(Json.parse(s"""{"phoneNumber": "$phoneNumber"}"""))
+      val result = await(verifyConnector.verify(Json.parse(s"""{"req": "req"}""")))
 
-      status(result) shouldBe OK
-      contentAsJson(result) shouldBe Json.parse("""{"m":"m"}""")
-
-      verify(
-        postRequestedFor(urlEqualTo(url))
-          .withRequestBody(equalToJson(s"""{"phoneNumber": "$phoneNumber"}"""))
-      )
-    }
-
-    "return HttpResponse BAD_REQUEST when upstream returns 400" in new Setup {
-      val phoneNumber = "test"
-
-      stubFor(
-        post(urlEqualTo(url))
-          .willReturn(badRequest().withBody("""{"m": "m"}"""))
-      )
-
-      val result = verifyConnector.verify(Json.parse(s"""{"phoneNumber": "$phoneNumber"}"""))
-
-      status(result) shouldBe BAD_REQUEST
-      contentAsJson(result) shouldBe Json.parse("""{"m": "m"}""")
+      result.status shouldBe OK
+      result.json shouldBe Json.parse("""{"res":"res"}""")
 
       verify(
         postRequestedFor(urlEqualTo(url))
-          .withRequestBody(equalToJson(s"""{"phoneNumber": "$phoneNumber"}"""))
-      )
-    }
-
-    "return HttpResponse INTERNAL_SERVER_ERROR when upstream returns 500" in new Setup {
-      val phoneNumber = "test"
-
-      stubFor(
-        post(urlEqualTo(url))
-          .willReturn(serverError)
-      )
-
-      val result = verifyConnector.verify(Json.parse(s"""{"phoneNumber": "$phoneNumber"}"""))
-
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-
-      verify(
-        postRequestedFor(urlEqualTo(url))
-          .withRequestBody(equalToJson(s"""{"phoneNumber": "$phoneNumber"}"""))
+          .withRequestBody(equalToJson(s"""{"req": "req"}"""))
       )
     }
   }
@@ -100,54 +61,19 @@ class VerifyConnectorSpec extends AnyWordSpec
   "status" should {
     val url: String = "/customer-insight-platform/phone-number/notifications/%s"
 
-    "return HttpResponse OK when upstream returns 200" in new Setup {
+    "delegate to http client" in new Setup {
       val notificationId = "test-notification-id"
 
       stubFor(
         get(urlEqualTo(url.format(notificationId)))
-          .willReturn(aResponse().withBody("""{"m":"m"}""")
+          .willReturn(aResponse().withBody("""{"res":"res"}""")
           )
       )
 
-      val result = verifyConnector.status(notificationId)
+      val result = await(verifyConnector.status(notificationId))
 
-      status(result) shouldBe OK
-      contentAsJson(result) shouldBe Json.parse("""{"m":"m"}""")
-
-      verify(
-        getRequestedFor(urlEqualTo(url.format(notificationId)))
-      )
-    }
-
-    "return HttpResponse BAD_REQUEST when upstream returns 400" in new Setup {
-      val notificationId = "test-notification-id"
-
-      stubFor(
-        get(urlEqualTo(url.format(notificationId)))
-          .willReturn(badRequest().withBody("""{"m": "m"}"""))
-      )
-
-      val result = verifyConnector.status(notificationId)
-
-      status(result) shouldBe BAD_REQUEST
-      contentAsJson(result) shouldBe Json.parse("""{"m": "m"}""")
-
-      verify(
-        getRequestedFor(urlEqualTo(url.format(notificationId)))
-      )
-    }
-
-    "return HttpResponse INTERNAL_SERVER_ERROR when upstream returns 500" in new Setup {
-      val notificationId = "test-notification-id"
-
-      stubFor(
-        get(urlEqualTo(url.format(notificationId)))
-          .willReturn(serverError)
-      )
-
-      val result = verifyConnector.status(notificationId)
-
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      result.status shouldBe OK
+      result.json shouldBe Json.parse("""{"res":"res"}""")
 
       verify(
         getRequestedFor(urlEqualTo(url.format(notificationId)))
@@ -158,87 +84,22 @@ class VerifyConnectorSpec extends AnyWordSpec
   "verifyOtp" should {
     val url: String = "/customer-insight-platform/phone-number/verify/otp"
 
-    "return HttpResponse OK when upstream returns 200" in new Setup {
-      val phoneNumber = "test"
-      val passcode = "test"
-
+    "delegate to http client" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-          .willReturn(aResponse().withBody("""{"m":"m"}""")
+          .willReturn(aResponse().withBody("""{"res":"res"}""")
           )
       )
 
-      val result = verifyConnector.verifyOtp(Json.parse(
-        s"""{
-              "phoneNumber": "$phoneNumber",
-              "passcode": "$passcode"
-            }""".stripMargin))
+      val result = await(verifyConnector.verifyOtp(Json.parse(s"""{"req": "req"}""".stripMargin)))
 
-      status(result) shouldBe OK
-      contentAsJson(result) shouldBe Json.parse("""{"m":"m"}""")
+      result.status shouldBe OK
+      result.json shouldBe Json.parse("""{"res":"res"}""")
 
       verify(
         postRequestedFor(urlEqualTo(url))
           .withRequestBody(equalToJson(
-            s"""{
-                  "phoneNumber": "$phoneNumber",
-                  "passcode": "$passcode"
-                }""".stripMargin))
-      )
-    }
-
-    "return HttpResponse BAD_REQUEST when upstream returns 400" in new Setup {
-      val phoneNumber = "test"
-      val passcode = "test"
-
-      stubFor(
-        post(urlEqualTo(url))
-          .willReturn(badRequest().withBody("""{"m": "m"}"""))
-      )
-
-      val result = verifyConnector.verifyOtp(Json.parse(
-        s"""{
-              "phoneNumber": "$phoneNumber",
-              "passcode": "$passcode"
-            }""".stripMargin))
-
-      status(result) shouldBe BAD_REQUEST
-      contentAsJson(result) shouldBe Json.parse("""{"m": "m"}""")
-
-      verify(
-        postRequestedFor(urlEqualTo(url))
-          .withRequestBody(equalToJson(
-            s"""{
-                  "phoneNumber": "$phoneNumber",
-                  "passcode": "$passcode"
-                }""".stripMargin))
-      )
-    }
-
-    "return HttpResponse INTERNAL_SERVER_ERROR when upstream returns 500" in new Setup {
-      val phoneNumber = "test"
-      val passcode = "test"
-
-      stubFor(
-        post(urlEqualTo(url))
-          .willReturn(serverError)
-      )
-
-      val result = verifyConnector.verifyOtp(Json.parse(
-        s"""{
-              "phoneNumber": "$phoneNumber",
-              "passcode": "$passcode"
-            }""".stripMargin))
-
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-
-      verify(
-        postRequestedFor(urlEqualTo(url))
-          .withRequestBody(equalToJson(
-            s"""{
-                  "phoneNumber": "$phoneNumber",
-                  "passcode": "$passcode"
-                }""".stripMargin))
+            s"""{"req": "req"}""".stripMargin))
       )
     }
   }
