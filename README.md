@@ -9,6 +9,7 @@ The default port for cip-phone-number-frontend is 6080
 The default port for cip-phone-number is port 6081
 The default port for cip-phone-number-validation is port 6082
 The default port for cip-phone-number-verification is port 6083
+The default port for cip-phone-number-stubs is port 6099
 
 ### Testing
 

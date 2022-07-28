@@ -20,9 +20,9 @@ import org.mockito.ArgumentMatchersSugar.any
 import org.mockito.IdiomaticMockito
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR}
 import play.api.libs.json.Json
-import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
+import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -30,46 +30,40 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class OtpControllerSpec extends AnyWordSpec
+class NotificationControllerSpec extends AnyWordSpec
   with Matchers
   with IdiomaticMockito {
 
   private val fakeRequest = FakeRequest()
   private val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
-  private val controller = new OtpController(Helpers.stubControllerComponents(), mockVerifyConnector)
+  private val controller = new NotificationController(Helpers.stubControllerComponents(), mockVerifyConnector)
 
-  "verifyOtp" should {
+  "status" should {
     "convert upstream 200 response" in {
-      mockVerifyConnector.verifyOtp(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(OK, """{"res":"res"}""")))
+      mockVerifyConnector.status("test-notification-id")(any[HeaderCarrier])
+        .returns(Future.successful(HttpResponse(OK, """{"m":"m"}""")))
 
-      val response = controller.verifyOtp(
-        fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
-      )
+      val response = controller.status("test-notification-id")(fakeRequest)
 
       status(response) shouldBe OK
-      contentAsJson(response) shouldBe Json.parse("""{"res":"res"}""")
+      contentAsJson(response) shouldBe Json.parse("""{"m":"m"}""")
     }
 
     "convert upstream 400 response" in {
-      mockVerifyConnector.verifyOtp(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"res":"res"}""")))
+      mockVerifyConnector.status("test-notification-id")(any[HeaderCarrier])
+        .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"m":"m"}""")))
 
-      val response = controller.verifyOtp(
-        fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
-      )
+      val response = controller.status("test-notification-id")(fakeRequest)
 
       status(response) shouldBe BAD_REQUEST
-      contentAsJson(response) shouldBe Json.parse("""{"res":"res"}""")
+      contentAsJson(response) shouldBe Json.parse("""{"m":"m"}""")
     }
 
     "convert upstream 500 response" in {
-      mockVerifyConnector.verifyOtp(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
+      mockVerifyConnector.status("test-notification-id")(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
-      val response = controller.verifyOtp(
-        fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
-      )
+      val response = controller.status("test-notification-id")(fakeRequest)
 
       status(response) shouldBe INTERNAL_SERVER_ERROR
     }
