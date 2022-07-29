@@ -18,7 +18,6 @@ package uk.gov.hmrc.cipphonenumber.controllers
 
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
-import uk.gov.hmrc.http.HttpReads.{is2xx, is4xx, is5xx}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
@@ -31,9 +30,7 @@ class NotificationController @Inject()(cc: ControllerComponents, verifyConnector
 
   def status(notificationId: String): Action[AnyContent] = Action.async { implicit request =>
     verifyConnector.status(notificationId) map {
-      case r if is2xx(r.status) => Ok(r.json)
-      case r if is4xx(r.status) => BadRequest(r.json)
-      case r if is5xx(r.status) => InternalServerError
+      r => Status(r.status)(r.body)
     }
   }
 }

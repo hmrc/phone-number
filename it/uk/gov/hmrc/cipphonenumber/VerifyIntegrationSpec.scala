@@ -35,7 +35,7 @@ class VerifyIntegrationSpec
   private val baseUrl = s"http://localhost:$port"
 
   "/verify" should {
-    "respond with 200 status when data is valid and result of verification is verified" in {
+    "respond with 200 with valid telephone number" in {
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/verify")
@@ -43,10 +43,10 @@ class VerifyIntegrationSpec
           .post(Json.parse("""{"phoneNumber" : "07843274323"}"""))
           .futureValue
 
-      response.status shouldBe 200
+      response.status shouldBe 202
     }
 
-    //    TODO: Fix as part of CAV-242
+    //TODO: Fix as part of CAV-242
     "respond with 400 status when data is invalid" ignore {
       val response =
         wsClient
