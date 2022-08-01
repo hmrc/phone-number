@@ -33,13 +33,14 @@ class OtpIntegrationSpec
     with DataSteps {
 
   "otp" should {
-    "respond with 200 verified status with valid otp" in {
+    "respond with 200 verified status with valid phone number and otp" in {
       val phoneNumber = "07811123456"
+      val normalisedPhoneNumber = "+447811123456"
       //generate otp
       verify(phoneNumber).futureValue
 
       //retrieve otp
-      val otp = retrieveOtp(phoneNumber).futureValue
+      val maybePhoneNumberAndOtp = retrieveOtp(normalisedPhoneNumber).futureValue
 
       //verify otp (sut)
       val response =
@@ -48,8 +49,8 @@ class OtpIntegrationSpec
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse {
             s"""{
-               "phoneNumber": "$phoneNumber",
-               "passcode": "${otp.get.passcode}"
+               "phoneNumber": "$normalisedPhoneNumber",
+               "otp": "${maybePhoneNumberAndOtp.get.otp}"
                }""".stripMargin
           })
           .futureValue
@@ -69,7 +70,7 @@ class OtpIntegrationSpec
           .post(Json.parse {
             s"""{
                "phoneNumber": "$phoneNumber",
-               "passcode": "123456"
+               "otp": "123456"
                }""".stripMargin
           })
           .futureValue
@@ -86,14 +87,14 @@ class OtpIntegrationSpec
           .post(Json.parse {
             s"""{
                "phoneNumber": "",
-               "passcode": ""
+               "otp": ""
                }""".stripMargin
           })
           .futureValue
 
       response.status shouldBe 400
       (response.json \ "code").as[String] shouldBe "VALIDATION_ERROR"
-      (response.json \ "message").as[String] shouldBe "Validation error"
+      (response.json \ "message").as[String] shouldBe "Enter a valid passcode"
     }
   }
 }
