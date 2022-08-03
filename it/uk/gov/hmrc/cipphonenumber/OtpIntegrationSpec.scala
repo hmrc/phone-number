@@ -60,8 +60,6 @@ class OtpIntegrationSpec
     }
 
     "respond with 200 not verified status with non existent otp" in {
-      val phoneNumber = "07811654321"
-
       //verify otp (sut)
       val response =
         wsClient
@@ -69,7 +67,7 @@ class OtpIntegrationSpec
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse {
             s"""{
-               "phoneNumber": "$phoneNumber",
+               "phoneNumber": "07811654321",
                "otp": "123456"
                }""".stripMargin
           })
@@ -86,7 +84,7 @@ class OtpIntegrationSpec
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse {
             s"""{
-               "phoneNumber": "",
+               "phoneNumber": "07811654321",
                "otp": ""
                }""".stripMargin
           })
