@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -36,9 +37,12 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
   private val notificationsUrl = s"$phoneNumberPath/notifications/%s"
   private val verifyOtpUrl = s"$phoneNumberPath/verify/otp"
 
+  private val timeout = Duration(config.httpTimeout, "milliseconds")
+
   def verify(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClientV2
       .post(url"$verifyUrl")
+      .transform(_.withRequestTimeout(timeout))
       .withBody(body)
       .execute[HttpResponse]
   }
@@ -46,12 +50,14 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
   def status(notificationId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClientV2
       .get(url"${notificationsUrl.format(notificationId)}")
+      .transform(_.withRequestTimeout(timeout))
       .execute[HttpResponse]
   }
 
   def verifyOtp(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClientV2
       .post(url"$verifyOtpUrl")
+      .transform(_.withRequestTimeout(timeout))
       .withBody(body)
       .execute[HttpResponse]
   }

@@ -110,6 +110,7 @@ class VerifyConnectorSpec extends AnyWordSpec
 
     private val appConfig = new AppConfig(
       Configuration.from(Map(
+        "http.timeout" -> 0,
         "microservice.services.cipphonenumber.verification.host" -> wireMockHost,
         "microservice.services.cipphonenumber.verification.port" -> wireMockPort,
         "microservice.services.cipphonenumber.verification.protocol" -> "http"
