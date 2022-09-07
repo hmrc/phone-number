@@ -53,14 +53,14 @@ class NotificationIntegrationSpec
     "respond with 404 status when notification id not found" in {
       val response =
         wsClient
-          .url(s"$baseUrl/customer-insight-platform/phone-number/notifications/86770ea0-d385-4b17-a0b4-23a85c0c5b1a")
+          .url(s"$baseUrl/customer-insight-platform/phone-number/notifications/noresult-d385-4b17-a0b4-23a85c0c5b1a")
           .withRequestFilter(AhcCurlRequestLogger())
           .get
           .futureValue
 
       response.status shouldBe 404
       (response.json \ "code").as[String] shouldBe "NOTIFICATION_NOT_FOUND"
-      (response.json \ "message").as[String] shouldBe "Notification ID not found"
+      (response.json \ "message").as[String] shouldBe "Notification Id not found"
     }
   }
 }
