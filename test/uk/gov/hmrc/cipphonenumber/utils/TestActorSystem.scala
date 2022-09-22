@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cipphonenumber.config
+package uk.gov.hmrc.cipphonenumber.utils
 
-import play.api.Configuration
+import akka.actor.ActorSystem
+import akka.stream.Materializer
+import org.scalatest.Suite
 
-import javax.inject.{Inject, Singleton}
+object TestActorSystem {
+  val system: ActorSystem = ActorSystem("test")
+}
 
-@Singleton
-class AppConfig @Inject()(config: Configuration) {
-
-  lazy val httpTimeout: Long = config.getMillis("http.timeout")
-
-  lazy val verificationConfig: CipVerificationConfig =
-    config.get[CipVerificationConfig]("microservice.services.cipphonenumber.verification")
+trait TestActorSystem { self: Suite =>
+  implicit val system: ActorSystem        = TestActorSystem.system
+  implicit val materializer: Materializer = Materializer(TestActorSystem.system)
 }

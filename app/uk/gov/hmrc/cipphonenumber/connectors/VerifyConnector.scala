@@ -16,43 +16,64 @@
 
 package uk.gov.hmrc.cipphonenumber.connectors
 
+import akka.stream.Materializer
 import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.libs.ws.writeableOf_JsValue
-import uk.gov.hmrc.cipphonenumber.config.AppConfig
+import uk.gov.hmrc.cipphonenumber.config.{AppConfig, CircuitBreakerConfig}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
-                               (implicit ec: ExecutionContext) extends Logging {
-  private val verificationServiceHost = s"${config.verificationUrlProtocol}://${config.verificationUrlHost}:${config.verificationUrlPort}"
+                               (implicit ec: ExecutionContext, protected val materializer: Materializer) extends Logging with CircuitBreakerWrapper {
+  private val verificationServiceHost = s"${config.verificationConfig.protocol}://${config.verificationConfig.host}:${config.verificationConfig.port}"
   private val phoneNumberPath = s"$verificationServiceHost/customer-insight-platform/phone-number"
   private val verifyUrl = s"$phoneNumberPath/verify"
   private val notificationsUrl = s"$phoneNumberPath/notifications/%s"
   private val verifyOtpUrl = s"$phoneNumberPath/verify/otp"
 
+  private val timeout = Duration(config.httpTimeout, "milliseconds")
+
+  implicit val connectionFailure: Try[HttpResponse] => Boolean = {
+    case Success(_) => false
+    case Failure(_) => true
+  }
+
   def verify(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    httpClientV2
-      .post(url"$verifyUrl")
-      .withBody(body)
-      .execute[HttpResponse]
+    withCircuitBreaker[HttpResponse](
+      httpClientV2
+        .post(url"$verifyUrl")
+        .transform(_.withRequestTimeout(timeout))
+        .withBody(body)
+        .execute[HttpResponse]
+    )
   }
 
   def status(notificationId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    httpClientV2
-      .get(url"${notificationsUrl.format(notificationId)}")
-      .execute[HttpResponse]
+    withCircuitBreaker[HttpResponse](
+      httpClientV2
+        .get(url"${notificationsUrl.format(notificationId)}")
+        .transform(_.withRequestTimeout(timeout))
+        .execute[HttpResponse]
+    )
   }
 
   def verifyOtp(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    httpClientV2
-      .post(url"$verifyOtpUrl")
-      .withBody(body)
-      .execute[HttpResponse]
+    withCircuitBreaker[HttpResponse](
+      httpClientV2
+        .post(url"$verifyOtpUrl")
+        .transform(_.withRequestTimeout(timeout))
+        .withBody(body)
+        .execute[HttpResponse]
+    )
   }
+
+  override def configCB: CircuitBreakerConfig = config.verificationConfig.cbConfig
 }
