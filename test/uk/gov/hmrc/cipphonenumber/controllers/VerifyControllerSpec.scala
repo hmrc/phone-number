@@ -22,7 +22,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
-import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, header, status}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -39,9 +39,11 @@ class VerifyControllerSpec extends AnyWordSpec
   private val controller = new VerifyController(Helpers.stubControllerComponents(), mockVerifyConnector)
 
   "verify" should {
+    val headerName = "header-name"
+    val headerValue = "header-value"
     "convert upstream 200 response" in {
       mockVerifyConnector.verify(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(OK, """{"res":"res"}""")))
+        .returns(Future.successful(HttpResponse(OK, """{"res":"res"}""", Map(headerName -> Seq(headerValue)))))
 
       val response = controller.verify(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
@@ -49,11 +51,12 @@ class VerifyControllerSpec extends AnyWordSpec
 
       status(response) shouldBe OK
       contentAsJson(response) shouldBe Json.parse("""{"res":"res"}""")
+      header(headerName, response) shouldBe Some(headerValue)
     }
 
     "convert upstream 400 response" in {
       mockVerifyConnector.verify(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"res":"res"}""")))
+        .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"res":"res"}""", Map(headerName -> Seq(headerValue)))))
 
       val response = controller.verify(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
@@ -61,17 +64,19 @@ class VerifyControllerSpec extends AnyWordSpec
 
       status(response) shouldBe BAD_REQUEST
       contentAsJson(response) shouldBe Json.parse("""{"res":"res"}""")
+      header(headerName, response) shouldBe Some(headerValue)
     }
 
     "convert upstream 500 response" in {
       mockVerifyConnector.verify(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
+        .returns(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "", Map(headerName -> Seq(headerValue)))))
 
       val response = controller.verify(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
       )
 
       status(response) shouldBe INTERNAL_SERVER_ERROR
+      header(headerName, response) shouldBe Some(headerValue)
     }
   }
 }
