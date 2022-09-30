@@ -22,7 +22,6 @@ import org.mockito.MockitoSugar.mock
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.Configuration
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
@@ -113,9 +112,11 @@ class VerifyConnectorSpec extends AnyWordSpec
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val cbConfigData = CircuitBreakerConfig("", 5, 5.toDuration, 30.toDuration, 5.toDuration, 1, 0)
+
     implicit class IntToDuration(timeout: Int) {
       def toDuration = Duration(timeout, java.util.concurrent.TimeUnit.SECONDS)
     }
+
     protected val appConfigMock = mock[AppConfig]
 
     when(appConfigMock.verificationConfig).thenReturn(CipVerificationConfig(

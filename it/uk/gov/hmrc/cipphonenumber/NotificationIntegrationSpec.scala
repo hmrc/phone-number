@@ -36,11 +36,11 @@ class NotificationIntegrationSpec
       //generate otp
       val verifyResponse = verify("07849123456").futureValue
 
-      val notificationId = verifyResponse.json.\("notificationId")
+      val notificationPath = verifyResponse.header("Location").get
 
       val response =
         wsClient
-          .url(s"$baseUrl/customer-insight-platform/phone-number/notifications/$notificationId")
+          .url(s"$baseUrl/customer-insight-platform/phone-number$notificationPath")
           .withRequestFilter(AhcCurlRequestLogger())
           .get
           .futureValue

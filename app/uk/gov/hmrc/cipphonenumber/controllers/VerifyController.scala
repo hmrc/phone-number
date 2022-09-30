@@ -31,7 +31,12 @@ class VerifyController @Inject()(cc: ControllerComponents, verifyConnector: Veri
 
   def verify: Action[JsValue] = Action.async(parse.json) { implicit request =>
     verifyConnector.verify(request.body) map {
-      r => Status(r.status)(r.body)
+      response =>
+        val headers = response.headers.toSeq flatMap {
+          case (parameter, values) =>
+            values map (parameter -> _)
+        }
+        Status(response.status)(response.body).withHeaders(headers: _*)
     }
   }
 }

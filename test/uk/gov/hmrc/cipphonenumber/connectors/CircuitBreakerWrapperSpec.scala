@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cipphonenumber.connectors
 
 import akka.stream.Materializer
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, post, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlEqualTo}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -27,9 +27,8 @@ import play.api.libs.ws.ahc.AhcCurlRequestLogger
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.cipphonenumber.config.CircuitBreakerConfig
 import uk.gov.hmrc.cipphonenumber.utils.TestActorSystem
-import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -69,6 +68,7 @@ class CircuitBreakerWrapperSpec extends AnyWordSpec
     protected implicit val hc: HeaderCarrier = HeaderCarrier()
     val circuitBreakers = new CircuitBreakerWrapper {
       override def configCB: CircuitBreakerConfig = CircuitBreakerConfig("Cip Verification", 2, 60.toDuration, 60.toDuration, 60.toDuration, 1, 0)
+
       override def materializer: Materializer = Materializer(TestActorSystem.system)
     }
 
