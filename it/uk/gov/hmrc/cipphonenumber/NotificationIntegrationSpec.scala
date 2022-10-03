@@ -33,7 +33,7 @@ class NotificationIntegrationSpec
 
   "/notifications" should {
     "respond with 200 status with valid notification id" in {
-      //generate otp
+      //generate passcode
       val verifyResponse = verify("07849123456").futureValue
 
       val notificationPath = verifyResponse.header("Location").get
