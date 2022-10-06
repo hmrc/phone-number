@@ -30,20 +30,20 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class OtpControllerSpec extends AnyWordSpec
+class VerifyPasscodeControllerSpec extends AnyWordSpec
   with Matchers
   with IdiomaticMockito {
 
   private val fakeRequest = FakeRequest()
   private val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
-  private val controller = new OtpController(Helpers.stubControllerComponents(), mockVerifyConnector)
+  private val controller = new VerifyPasscodeController(Helpers.stubControllerComponents(), mockVerifyConnector)
 
-  "verifyOtp" should {
+  "verifyPasscode" should {
     "convert upstream 200 response" in {
-      mockVerifyConnector.verifyOtp(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
+      mockVerifyConnector.verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(OK, """{"res":"res"}""")))
 
-      val response = controller.verifyOtp(
+      val response = controller.verifyPasscode(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
       )
 
@@ -52,10 +52,10 @@ class OtpControllerSpec extends AnyWordSpec
     }
 
     "convert upstream 400 response" in {
-      mockVerifyConnector.verifyOtp(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
+      mockVerifyConnector.verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"res":"res"}""")))
 
-      val response = controller.verifyOtp(
+      val response = controller.verifyPasscode(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
       )
 
@@ -64,10 +64,10 @@ class OtpControllerSpec extends AnyWordSpec
     }
 
     "convert upstream 500 response" in {
-      mockVerifyConnector.verifyOtp(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
+      mockVerifyConnector.verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
-      val response = controller.verifyOtp(
+      val response = controller.verifyPasscode(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
       )
 

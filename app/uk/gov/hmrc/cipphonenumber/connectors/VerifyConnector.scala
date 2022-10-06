@@ -37,7 +37,7 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
   private val phoneNumberPath = s"$verificationServiceHost/customer-insight-platform/phone-number"
   private val verifyUrl = s"$phoneNumberPath/verify"
   private val notificationsUrl = s"$phoneNumberPath/notifications/%s"
-  private val verifyOtpUrl = s"$phoneNumberPath/verify/otp"
+  private val verifyPasscodeUrl = s"$phoneNumberPath/verify/passcode"
 
   private val timeout = Duration(config.httpTimeout, "milliseconds")
 
@@ -65,10 +65,10 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
     )
   }
 
-  def verifyOtp(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def verifyPasscode(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     withCircuitBreaker[HttpResponse](
       httpClientV2
-        .post(url"$verifyOtpUrl")
+        .post(url"$verifyPasscodeUrl")
         .transform(_.withRequestTimeout(timeout))
         .withBody(body)
         .execute[HttpResponse]

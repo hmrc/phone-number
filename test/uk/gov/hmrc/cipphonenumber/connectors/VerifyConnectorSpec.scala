@@ -85,8 +85,8 @@ class VerifyConnectorSpec extends AnyWordSpec
     }
   }
 
-  "verifyOtp" should {
-    val url: String = "/customer-insight-platform/phone-number/verify/otp"
+  "verifyPasscode" should {
+    val url: String = "/customer-insight-platform/phone-number/verify/passcode"
 
     "delegate to http client" in new Setup {
       stubFor(
@@ -95,7 +95,7 @@ class VerifyConnectorSpec extends AnyWordSpec
           )
       )
 
-      val result = await(verifyConnector.verifyOtp(Json.parse(s"""{"req": "req"}""".stripMargin)))
+      val result = await(verifyConnector.verifyPasscode(Json.parse(s"""{"req": "req"}""".stripMargin)))
 
       result.status shouldBe OK
       result.json shouldBe Json.parse("""{"res":"res"}""")
