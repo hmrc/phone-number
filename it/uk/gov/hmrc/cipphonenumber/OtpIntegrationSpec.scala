@@ -74,7 +74,8 @@ class OtpIntegrationSpec
           .futureValue
 
       response.status shouldBe 200
-      (response.json \ "status").as[String] shouldBe "Not verified"
+      (response.json \ "code").as[String] shouldBe "VERIFICATION_ERROR"
+      (response.json \ "message").as[String] shouldBe "Enter a correct passcode"
     }
 
     "respond with 400 status for invalid request" in {
