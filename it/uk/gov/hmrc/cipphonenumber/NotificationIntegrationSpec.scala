@@ -46,7 +46,7 @@ class NotificationIntegrationSpec
           .futureValue
 
       response.status shouldBe 200
-      (response.json \ "code").as[Int] shouldBe 105
+      (response.json \ "notificationStatus").as[String] shouldBe "DELIVERED"
       (response.json \ "message").as[String] shouldBe "Message was delivered successfully"
     }
 
