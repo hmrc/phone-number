@@ -25,12 +25,12 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class OtpController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector)
-                             (implicit executionContext: ExecutionContext)
+class VerifyPasscodeController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector)
+                                        (implicit executionContext: ExecutionContext)
   extends BackendController(cc) {
 
-  def verifyOtp: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    verifyConnector.verifyOtp(request.body) map {
+  def verifyPasscode: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    verifyConnector.verifyPasscode(request.body) map {
       r => Status(r.status)(r.body)
     }
   }

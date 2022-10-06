@@ -2,4 +2,4 @@
 
 POST        /verify                          uk.gov.hmrc.cipphonenumber.controllers.VerifyController.verify
 GET         /notifications/:notificationId   uk.gov.hmrc.cipphonenumber.controllers.NotificationController.status(notificationId: String)
-POST        /verify/otp                      uk.gov.hmrc.cipphonenumber.controllers.OtpController.verifyOtp
+POST        /verify/passcode                 uk.gov.hmrc.cipphonenumber.controllers.VerifyPasscodeController.verifyPasscode

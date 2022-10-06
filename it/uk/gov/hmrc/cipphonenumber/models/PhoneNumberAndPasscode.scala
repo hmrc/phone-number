@@ -18,8 +18,8 @@ package uk.gov.hmrc.cipphonenumber.models
 
 import play.api.libs.json.{Json, Reads}
 
-case class PhoneNumberAndOtp(phoneNumber: String, otp: String)
+case class PhoneNumberAndPasscode(phoneNumber: String, passcode: String)
 
-object PhoneNumberAndOtp {
-  implicit val reads: Reads[PhoneNumberAndOtp] = Json.reads[PhoneNumberAndOtp]
+object PhoneNumberAndPasscode {
+  implicit val reads: Reads[PhoneNumberAndPasscode] = Json.reads[PhoneNumberAndPasscode]
 }
