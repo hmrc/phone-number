@@ -55,7 +55,7 @@ class VerifyIntegrationSpec
           .futureValue
 
       response.status shouldBe 400
-      (response.json \ "code").as[String] shouldBe "VALIDATION_ERROR"
+      (response.json \ "code").as[Int] shouldBe 1002
       (response.json \ "message").as[String] shouldBe "Enter a valid telephone number"
     }
   }
