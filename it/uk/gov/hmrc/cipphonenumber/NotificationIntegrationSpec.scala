@@ -59,7 +59,7 @@ class NotificationIntegrationSpec
           .futureValue
 
       response.status shouldBe 404
-      (response.json \ "code").as[String] shouldBe "NOTIFICATION_NOT_FOUND"
+      (response.json \ "code").as[Int] shouldBe 1001
       (response.json \ "message").as[String] shouldBe "Notification Id not found"
     }
   }
