@@ -1,0 +1,2 @@
+GET        /definition                                  uk.gov.hmrc.cipphonenumber.controllers.DocumentationController.definition()
+GET        /conf/:version/*file                         uk.gov.hmrc.cipphonenumber.controllers.DocumentationController.specification(version, file)

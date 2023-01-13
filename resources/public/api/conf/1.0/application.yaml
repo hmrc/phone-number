@@ -1,0 +1,320 @@
+
+openapi: "3.0.3"
+
+info:
+  version: 1.0.0
+  title: CIP phone number API
+  description: |
+    # Overview
+    This is an API that allows an phone number to be verified by calling the Verify endpoint followed by the Verify Passcode endpoint.  It also provides a status API to check the status of a previous Verify request.
+
+servers:
+  - url: https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number
+    description: QA
+  - url: https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number
+    description: Staging
+  - url: https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number
+    description: Production
+
+components:
+  schemas:
+    VerifyRequest: {
+      type: object,
+      properties: {
+        phoneNumber: {
+          type: "string",
+          required: true
+        }
+      }
+    }
+    VerifyPasscodeRequest: {
+      type: object,
+      properties: {
+        phoneNumber: {
+          type: "string",
+          required: true
+        },
+        passcode: {
+          type: "string",
+          required: true
+        }
+      }
+    }
+    ErrorResponse: {
+      type: object,
+      properties: {
+        code: {
+          type: "integer",
+        },
+        message: {
+          type: "string"
+        }
+      }
+    }
+    VerifyUnsuccessfulResponse: {
+      type: object,
+      properties: {
+        status: {
+          type: "string"
+        },
+        message: {
+          type: "string"
+        }
+      }
+    }
+    VerifyPasscodeResponse: {
+      type: object,
+      properties: {
+        message: {
+          type: "string"
+        }
+      }
+    }
+    NotificationStatusResponse: {
+      type: object,
+      properties: {
+        notificationStatus: {
+          type: "string"
+        },
+        message: {
+          type: "string"
+        }
+      }
+    }
+  responses:
+    badOrExpiredTokenResponse:
+      description: |
+        Bad or expired token.
+        This can happen if the user or HMRC revoked or expired an access token.
+        To fix, you should re-authenticate the user.
+      content:
+        application/json:
+          example:
+    forbiddenResponse:
+      description: |
+        Bad OAuth request (wrong consumer key, bad nonce, expired
+        timestamp...). Unfortunately, re-authenticating the user won't help here.
+      content:
+        application/json:
+          example:
+  parameters:
+    acceptHeader:
+      name: Accept
+      in: header
+      schema:
+        type: string
+        enum: [
+          "application/json"
+        ]
+      required: true
+  securitySchemes:
+    applicationRestricted:
+      type: jwt
+      description: |
+        HMRC supports JWT auth tokens for authenticating application restricted API requests using an encrypted Authorisation Token in the AUTHORIZATION header.
+           See https://confluence.tools.tax.service.gov.uk/display/PLATOPS/Internal+Auth+-+Requesting+Access for details.
+      flows:
+        clientCredentials:
+          tokenUrl: https://github.com/hmrc/internal-auth/blob/main/README.md#api
+          scopes: {}
+paths:
+  /verify:
+    post:
+      summary: Verify a phone number
+      description: |
+        Verify an phone number.  Sends a passcode to the given phone number.  
+        Any authorised request to this endpoint initiates a 202 response if successfully processed by the service.
+        Note:  This is seperate from whether or not the phone  number was successfully delivered to the end user.  See status endpoint for more details.
+      tags:
+        - cip-phone-number-microservice
+      parameters:
+        - $ref: '#/components/parameters/acceptHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+            example:
+              phoneNumber: 07812345678
+      responses:
+        200:
+          description: "Invalid phone number type Response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyUnsuccessfulResponse'
+              example:
+                status: "Indeterminate"
+                message: "Only mobile numbers can be verified"
+        202:
+          description: "Accepted Response"
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The path url with the corresponding id for the associated send passcode request.  The id is a required path parameter of the /notifications endpoint.
+              example: "/notifications/1234"
+        400:
+          description: "Invalid phone number Response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {
+                  "code": 1002,
+                  "message": "Enter a valid telephone number"
+                }
+      security:
+        - applicationRestricted: []
+  /verifyPasscode:
+    post:
+      summary: Verify a passcode
+      description: |
+        Verify a passcode for the corresponding phone number. 
+        Any authorised request to this endpoint initiates a 200 response if successfully processed by the service.
+      tags:
+        - cip-phone-number-microservice
+      parameters:
+        - $ref: '#/components/parameters/acceptHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyPasscodeRequest'
+            example:
+              phoneNumber: 07812345678
+              passcode: ABCDEF
+      responses:
+        200:
+          description: "Ok Responses"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyPasscodeResponse'
+              examples:
+                Phone number Verified Successfully:
+                  value:
+                    message: "Verified"
+                Phone number cannot be verified:
+                  value:
+                    message: "Not verified"
+                Passcode has expired:
+                  value:
+                    code: 1013
+                    message: "The passcode has expired. Request a new passcode"
+                Passcode no longer exists:
+                  value:
+                    code: 1014
+                    message: "Enter a correct passcode"
+        400:
+          description: "Invalid phone number Response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {
+                  "code": 1002,
+                  "message": "Enter a valid telephone number"
+                }
+        429:
+          description: "Too many requests responses"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                User requested another passcode too soon error:
+                  value:
+                    code: 1016
+                    message: "The request is still being processed"
+                GovNotify Rate Limit error:
+                  value:
+                    code: 1007
+                    message: "The request for the API is throttled as you have exceeded your quota"
+      security:
+        - applicationRestricted: [ ]
+  /notifications/{id}:
+    get:
+      summary: Check the delivery status of a passcode
+      description: |
+        Check the delivery status of a passcode by using the url that was received in the Verify Location Response header.
+        Any authorised request to this endpoint initiates a 200 response if successfully processed by the service.
+      tags:
+        - cip-phone-number-microservice
+      parameters:
+        - $ref: '#/components/parameters/acceptHeader'
+        - in: path
+          name: id   # Note the name is the same as in the path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: |
+            The id of the notification that sent a passcode to the end users phone number.  
+            This id is returned in the Location Response header of the corresponding verify request.
+      responses:
+        200:
+          description: "Ok Response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationStatusResponse'
+              examples:
+                Passcode is in the process of being sent:
+                  value:
+                    notificationStatus: "CREATED"
+                    message: "Message is in the process of being sent"
+                Passcode was sent successfully:
+                  value:
+                    notificationStatus: "SENDING"
+                    message: "Message has been sent"
+                Passcode is in the process of being delivered:
+                  value:
+                    notificationStatus: "PENDING"
+                    message: "Message is in the process of being delivered"
+                Passcode sent Successfully:
+                  value:
+                    notificationStatus: "SENT"
+                    message: "Message was sent successfully"
+                Passcode delivered Successfully:
+                  value:
+                    notificationStatus: "DELIVERED"
+                    message: "Message was delivered successfully"
+                Passcode was not delivered due to a permanent failure:
+                  value:
+                    notificationStatus: "PERMANENT_FAILURE"
+                    message: "Message was unable to be delivered by the network provider"
+                Passcode was not delivered due to a temporary failure:
+                  value:
+                    notificationStatus: "TEMPORARY_FAILURE"
+                    message: "Message was unable to be delivered by the network provider"
+                Passcode was not delivered due to a technical failure:
+                  value:
+                    notificationStatus: "TECHNICAL_FAILURE"
+                    message: "There is a problem with the notification vendor"
+        400:
+          description: "Invalid notification id Response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {
+                  "code": 1002,
+                  "message": "Enter a valid notification Id"
+                }
+        404:
+          description: "No notification id found response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {
+                  "code": 1015,
+                  "message": "Notification Id not found"
+                }
+      security:
+        - applicationRestricted: [ ]
