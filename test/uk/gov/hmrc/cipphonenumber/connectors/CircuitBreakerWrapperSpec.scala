@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.DurationInt
 import scala.util.{Failure, Success, Try}
 
 class CircuitBreakerWrapperSpec extends AnyWordSpec
@@ -67,13 +67,9 @@ class CircuitBreakerWrapperSpec extends AnyWordSpec
   trait SetUp {
     protected implicit val hc: HeaderCarrier = HeaderCarrier()
     val circuitBreakers = new CircuitBreakerWrapper {
-      override def configCB: CircuitBreakerConfig = CircuitBreakerConfig("Cip Verification", 2, 60.toDuration, 60.toDuration, 60.toDuration, 1, 0)
+      override def configCB: CircuitBreakerConfig = CircuitBreakerConfig("Cip Verification", 2, 60.seconds, 60.seconds, 60.seconds, 1, 0)
 
       override def materializer: Materializer = Materializer(TestActorSystem.system)
-    }
-
-    implicit class IntToDuration(timeout: Int) {
-      def toDuration = Duration(timeout, java.util.concurrent.TimeUnit.SECONDS)
     }
 
     implicit val connectionFailure: Try[HttpResponse] => Boolean = {

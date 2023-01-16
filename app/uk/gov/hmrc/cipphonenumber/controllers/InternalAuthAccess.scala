@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cipphonenumber.utils
+package uk.gov.hmrc.cipphonenumber.controllers
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
-import org.scalatest.Suite
+import uk.gov.hmrc.internalauth.client.{IAAction, Predicate, Resource, ResourceLocation, ResourceType}
 
-object TestActorSystem {
-  val system: ActorSystem = ActorSystem("test")
-}
-
-trait TestActorSystem { self: Suite =>
-  implicit val system: ActorSystem        = TestActorSystem.system
-  implicit val materializer: Materializer = Materializer(TestActorSystem.system)
+trait InternalAuthAccess {
+  val permission: Predicate.Permission = Predicate.Permission(Resource(
+    ResourceType("cip-phone-number"),
+    ResourceLocation("*")),
+    IAAction("*"))
 }
