@@ -16,22 +16,37 @@
 
 package uk.gov.hmrc.cipphonenumber.controllers
 
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.Logging
+import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
-import uk.gov.hmrc.internalauth.client.BackendAuthComponents
+import uk.gov.hmrc.cipphonenumber.models.api.ErrorResponse
+import uk.gov.hmrc.cipphonenumber.models.api.ErrorResponse.{Codes, Message}
+import uk.gov.hmrc.cipphonenumber.utils.ResultBuilder
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 @Singleton()
-class NotificationController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector, auth: BackendAuthComponents)
+class NotificationController @Inject()(private val cc: ControllerComponents,
+                                       private val verifyConnector: VerifyConnector)
                                       (implicit executionContext: ExecutionContext)
-  extends BackendController(cc) with InternalAuthAccess {
+  extends BackendController(cc)
+    with Logging with ResultBuilder {
 
-  def status(notificationId: String): Action[AnyContent] = auth.authorizedAction[Unit](permission).compose(Action).async { implicit request =>
-    verifyConnector.status(notificationId) map {
-      r => Status(r.status)(r.body)
+  def status(notificationId: String): Action[AnyContent] = Action.async { implicit request =>
+    callVerificationService(notificationId)
+  }
+
+  private def callVerificationService(notificationId: String)(implicit hc: HeaderCarrier): Future[Result] = {
+    verifyConnector.status(notificationId).transformWith {
+      case Success(response) => Future.successful(processHttpResponse(response))
+      case Failure(_) =>
+        logger.error(s"An unexpected error has occurred")
+        Future.successful(GatewayTimeout(Json.toJson(ErrorResponse(Codes.SERVER_CURRENTLY_UNAVAILABLE.id, Message.SERVER_CURRENTLY_UNAVAILABLE))))
     }
   }
 }

@@ -23,6 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.ws.ahc.AhcCurlRequestLogger
 import uk.gov.hmrc.cipphonenumber.utils.DataSteps
 
+import scala.util.Random
+
 class NotificationIntegrationSpec
   extends AnyWordSpec
     with Matchers
@@ -33,8 +35,10 @@ class NotificationIntegrationSpec
 
   "/notifications" should {
     "respond with 200 status with valid notification id" in {
+      val phoneNumberRandomizer = Random.alphanumeric.filter(_.isDigit).take(9).mkString
+
       //generate passcode
-      val verifyResponse = verify("07849123456").futureValue
+      val verifyResponse = verify(s"07$phoneNumberRandomizer").futureValue
 
       val notificationPath = verifyResponse.header("Location").get
 

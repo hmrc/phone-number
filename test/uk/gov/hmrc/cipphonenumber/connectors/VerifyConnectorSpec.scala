@@ -17,8 +17,7 @@
 package uk.gov.hmrc.cipphonenumber.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
+import org.mockito.IdiomaticMockito
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -31,26 +30,27 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.DurationInt
 
 class VerifyConnectorSpec extends AnyWordSpec
   with Matchers
   with WireMockSupport
   with ScalaFutures
   with HttpClientV2Support
-  with TestActorSystem {
+  with TestActorSystem
+  with IdiomaticMockito {
 
   "verify" should {
     val url: String = "/customer-insight-platform/phone-number/verify"
 
-    "delegate to http client" in new Setup {
+    "delegate to http client" in new SetUp {
       stubFor(
         post(urlEqualTo(url))
           .willReturn(aResponse().withBody("""{"res":"res"}""")
           )
       )
 
-      val result = await(verifyConnector.verify(Json.parse(s"""{"req": "req"}""")))
+      private val result = await(verifyConnector.callVerifyEndpoint(Json.parse(s"""{"req": "req"}""")))
 
       result.status shouldBe OK
       result.json shouldBe Json.parse("""{"res":"res"}""")
@@ -65,7 +65,7 @@ class VerifyConnectorSpec extends AnyWordSpec
   "status" should {
     val url: String = "/customer-insight-platform/phone-number/notifications/%s"
 
-    "delegate to http client" in new Setup {
+    "delegate to http client" in new SetUp {
       val notificationId = "test-notification-id"
 
       stubFor(
@@ -74,7 +74,7 @@ class VerifyConnectorSpec extends AnyWordSpec
           )
       )
 
-      val result = await(verifyConnector.status(notificationId))
+      private val result = await(verifyConnector.status(notificationId))
 
       result.status shouldBe OK
       result.json shouldBe Json.parse("""{"res":"res"}""")
@@ -88,14 +88,14 @@ class VerifyConnectorSpec extends AnyWordSpec
   "verifyPasscode" should {
     val url: String = "/customer-insight-platform/phone-number/verify/passcode"
 
-    "delegate to http client" in new Setup {
+    "delegate to http client" in new SetUp {
       stubFor(
         post(urlEqualTo(url))
           .willReturn(aResponse().withBody("""{"res":"res"}""")
           )
       )
 
-      val result = await(verifyConnector.verifyPasscode(Json.parse(s"""{"req": "req"}""".stripMargin)))
+      private val result = await(verifyConnector.verifyPasscode(Json.parse(s"""{"req": "req"}""".stripMargin)))
 
       result.status shouldBe OK
       result.json shouldBe Json.parse("""{"res":"res"}""")
@@ -108,19 +108,18 @@ class VerifyConnectorSpec extends AnyWordSpec
     }
   }
 
-  trait Setup {
+  trait SetUp {
+    protected implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    implicit val hc: HeaderCarrier = HeaderCarrier()
-    val cbConfigData = CircuitBreakerConfig("", 5, 5.toDuration, 30.toDuration, 5.toDuration, 1, 0)
+    protected val appConfigMock: AppConfig = mock[AppConfig]
+    protected val cipVerificationConfigMock: CipVerificationConfig = mock[CipVerificationConfig]
 
-    implicit class IntToDuration(timeout: Int) {
-      def toDuration = Duration(timeout, java.util.concurrent.TimeUnit.SECONDS)
-    }
+    protected val cbConfigData: CircuitBreakerConfig =
+      CircuitBreakerConfig("", 5, 5.minutes, 30.seconds, 5.minutes, 1, 0)
 
-    protected val appConfigMock = mock[AppConfig]
-
-    when(appConfigMock.verificationConfig).thenReturn(CipVerificationConfig(
-      "http", wireMockHost, wireMockPort, "fake-token", cbConfigData))
+    appConfigMock.verificationConfig returns cipVerificationConfigMock
+    cipVerificationConfigMock.cbConfig returns cbConfigData
+    cipVerificationConfigMock.url returns wireMockUrl
 
     val verifyConnector = new VerifyConnector(
       httpClientV2,

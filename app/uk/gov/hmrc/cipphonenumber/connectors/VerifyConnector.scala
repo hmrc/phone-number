@@ -19,7 +19,6 @@ package uk.gov.hmrc.cipphonenumber.connectors
 import akka.stream.Materializer
 import play.api.Logging
 import play.api.libs.json.JsValue
-import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.cipphonenumber.config.{AppConfig, CircuitBreakerConfig}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -32,13 +31,14 @@ import scala.util.{Failure, Success, Try}
 
 @Singleton
 class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
-                               (implicit ec: ExecutionContext, protected val materializer: Materializer) extends Logging with CircuitBreakerWrapper {
-  private val verificationServiceHost = s"${config.verificationConfig.protocol}://${config.verificationConfig.host}:${config.verificationConfig.port}"
-  private val phoneNumberPath = s"$verificationServiceHost/customer-insight-platform/phone-number"
-  private val verifyUrl = s"$phoneNumberPath/verify"
-  private val notificationsUrl = s"$phoneNumberPath/notifications/%s"
-  private val verifyPasscodeUrl = s"$phoneNumberPath/verify/passcode"
+                               (implicit ec: ExecutionContext, val materializer: Materializer)
+  extends Logging
+    with CircuitBreakerWrapper {
 
+  private val verifyPath: String = s"${config.verificationConfig.url}/customer-insight-platform/phone-number"
+  private val verifyUrl: String = s"$verifyPath/verify"
+  private val verifyPasscodeUrl: String = s"$verifyUrl/passcode"
+  private val notificationsUrl: String = s"$verifyPath/notifications/%s"
   private val timeout = Duration(config.httpTimeout, "milliseconds")
 
   implicit val connectionFailure: Try[HttpResponse] => Boolean = {
@@ -46,7 +46,7 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
     case Failure(_) => true
   }
 
-  def verify(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def callVerifyEndpoint(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     withCircuitBreaker[HttpResponse](
       httpClientV2
         .post(url"$verifyUrl")
@@ -74,6 +74,8 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
         .transform(
           _.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
         .withBody(body)
+        .transform(
+          _.withRequestTimeout(timeout))
         .execute[HttpResponse]
     )
   }

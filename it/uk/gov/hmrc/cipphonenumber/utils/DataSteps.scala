@@ -20,6 +20,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.libs.ws.ahc.AhcCurlRequestLogger
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.cipphonenumber.models.PhoneNumberAndPasscode
 import uk.gov.hmrc.mongo.cache.DataKey
@@ -51,6 +52,7 @@ trait DataSteps {
     wsClient
       .url(s"$baseUrl/customer-insight-platform/phone-number/verify")
       .withHttpHeaders(("Authorization", "fake-token"))
+      .withRequestFilter(AhcCurlRequestLogger())
       .post(Json.parse {
         s"""{"phoneNumber": "$phoneNumber"}""".stripMargin
       })

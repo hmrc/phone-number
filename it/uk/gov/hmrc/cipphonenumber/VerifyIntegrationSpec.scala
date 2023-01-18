@@ -24,6 +24,8 @@ import play.api.libs.json.Json
 import play.api.libs.ws.ahc.AhcCurlRequestLogger
 import play.api.libs.ws.{WSClient, writeableOf_JsValue}
 
+import scala.util.Random
+
 class VerifyIntegrationSpec
   extends AnyWordSpec
     with Matchers
@@ -34,14 +36,16 @@ class VerifyIntegrationSpec
   private val wsClient = app.injector.instanceOf[WSClient]
   private val baseUrl = s"http://localhost:$port"
 
+  val phoneNumberRandomizer = Random.alphanumeric.filter(_.isDigit).take(9).mkString
+
   "/verify" should {
-    "respond with 200 with valid telephone number" in {
+    "respond with 202 with valid telephone number" in {
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/verify")
           .withHttpHeaders(("Authorization", "fake-token"))
           .withRequestFilter(AhcCurlRequestLogger())
-          .post(Json.parse("""{"phoneNumber" : "07843274323"}"""))
+          .post(Json.parse(s"""{"phoneNumber" : "07$phoneNumberRandomizer"}"""))
           .futureValue
 
       response.status shouldBe 202
