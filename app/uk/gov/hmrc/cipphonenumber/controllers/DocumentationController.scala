@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cipphonenumber.utils
+package uk.gov.hmrc.cipphonenumber.controllers
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
-import org.scalatest.Suite
+import javax.inject.{Inject, Singleton}
+import controllers.Assets
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-object TestActorSystem {
-  val system: ActorSystem = ActorSystem("test")
-}
+@Singleton
+class DocumentationController @Inject()(assets: Assets, cc: ControllerComponents) extends BackendController(cc) {
 
-trait TestActorSystem { self: Suite =>
-  implicit val system: ActorSystem        = TestActorSystem.system
-  implicit val materializer: Materializer = Materializer(TestActorSystem.system)
+  def definition(): Action[AnyContent] = {
+    assets.at("/public/api", "definition.json")
+  }
+
+  def specification(version: String, file: String): Action[AnyContent] = {
+    assets.at(s"/public/api/conf/$version", file)
+  }
 }
