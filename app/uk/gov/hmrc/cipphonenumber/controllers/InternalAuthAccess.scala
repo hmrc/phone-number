@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cipphonenumber.models
+package uk.gov.hmrc.cipphonenumber.controllers
 
-import play.api.libs.json.{Json, Reads}
+import uk.gov.hmrc.internalauth.client.{IAAction, Predicate, Resource, ResourceLocation, ResourceType}
 
-case class PhoneNumberAndPasscode(phoneNumber: String, passcode: String)
-
-object PhoneNumberAndPasscode {
-  implicit val reads: Reads[PhoneNumberAndPasscode] = Json.reads[PhoneNumberAndPasscode]
+trait InternalAuthAccess {
+  val permission: Predicate.Permission = Predicate.Permission(Resource(
+    ResourceType("cip-phone-number"),
+    ResourceLocation("*")),
+    IAAction("*"))
 }

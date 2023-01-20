@@ -18,17 +18,18 @@ package uk.gov.hmrc.cipphonenumber.controllers
 
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
+import uk.gov.hmrc.internalauth.client.BackendAuthComponents
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class NotificationController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector)
+class NotificationController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector, auth: BackendAuthComponents)
                                       (implicit executionContext: ExecutionContext)
-  extends BackendController(cc) {
+  extends BackendController(cc) with InternalAuthAccess {
 
-  def status(notificationId: String): Action[AnyContent] = Action.async { implicit request =>
+  def status(notificationId: String): Action[AnyContent] = auth.authorizedAction[Unit](permission).compose(Action).async { implicit request =>
     verifyConnector.status(notificationId) map {
       r => Status(r.status)(r.body)
     }

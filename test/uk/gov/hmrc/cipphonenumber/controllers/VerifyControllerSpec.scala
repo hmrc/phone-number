@@ -22,11 +22,16 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, header, status}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.internalauth.client.Predicate.Permission
+import uk.gov.hmrc.internalauth.client.{BackendAuthComponents, IAAction, Resource, ResourceLocation, ResourceType, Retrieval}
+import uk.gov.hmrc.internalauth.client.test.{BackendAuthComponentsStub, StubBehaviour}
 
+import scala.concurrent.ExecutionContext.Implicits
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -34,14 +39,8 @@ class VerifyControllerSpec extends AnyWordSpec
   with Matchers
   with IdiomaticMockito {
 
-  private val fakeRequest = FakeRequest()
-  private val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
-  private val controller = new VerifyController(Helpers.stubControllerComponents(), mockVerifyConnector)
-
   "verify" should {
-    val headerName = "header-name"
-    val headerValue = "header-value"
-    "convert upstream 200 response" in {
+    "convert upstream 200 response" in new SetUp {
       mockVerifyConnector.verify(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(OK, """{"res":"res"}""", Map(headerName -> Seq(headerValue)))))
 
@@ -54,7 +53,7 @@ class VerifyControllerSpec extends AnyWordSpec
       header(headerName, response) shouldBe Some(headerValue)
     }
 
-    "convert upstream 400 response" in {
+    "convert upstream 400 response" in new SetUp {
       mockVerifyConnector.verify(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"res":"res"}""", Map(headerName -> Seq(headerValue)))))
 
@@ -67,7 +66,7 @@ class VerifyControllerSpec extends AnyWordSpec
       header(headerName, response) shouldBe Some(headerValue)
     }
 
-    "convert upstream 500 response" in {
+    "convert upstream 500 response" in new SetUp {
       mockVerifyConnector.verify(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "", Map(headerName -> Seq(headerValue)))))
 
@@ -78,5 +77,21 @@ class VerifyControllerSpec extends AnyWordSpec
       status(response) shouldBe INTERNAL_SERVER_ERROR
       header(headerName, response) shouldBe Some(headerValue)
     }
+  }
+
+  trait SetUp {
+    val headerName = "header-name"
+    val headerValue = "header-value"
+    protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Authorization" -> "fake-token")
+    private val expectedPredicate = {
+      Permission(Resource(ResourceType("cip-phone-number"), ResourceLocation("*")), IAAction("*"))
+    }
+    protected val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
+    mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval).returns(Future.unit)
+    protected val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
+    protected val backendAuthComponentsStub: BackendAuthComponents =
+      BackendAuthComponentsStub(mockStubBehaviour)(Helpers.stubControllerComponents(), Implicits.global)
+    protected lazy val controller =
+      new VerifyController(Helpers.stubControllerComponents(), mockVerifyConnector, backendAuthComponentsStub)
   }
 }

@@ -1,6 +1,7 @@
 ### Correct-number
 POST http://localhost:6081/customer-insight-platform/phone-number/verify
 content-type: application/json
+Authorization: fake-token
 
 {
   "phoneNumber" : "07843274323"
@@ -9,6 +10,7 @@ content-type: application/json
 ### Non-numeric
 POST http://localhost:6081/customer-insight-platform/phone-number/verify
 content-type: application/json
+Authorization: fake-token
 
 {
 "phoneNumber" : "sajdkl"
@@ -17,6 +19,7 @@ content-type: application/json
 ### Three-digit number
 POST http://localhost:6081/customer-insight-platform/phone-number/verify
 content-type: application/json
+Authorization: fake-token
 
 {
   "phoneNumber" : "999"
@@ -25,6 +28,7 @@ content-type: application/json
 ### 20-digit number
 POST http://localhost:6081/customer-insight-platform/phone-number/verify
 content-type: application/json
+Authorization: fake-token
 
 {
   "phoneNumber" : "0123456786901234567869"
@@ -33,6 +37,7 @@ content-type: application/json
 ### 7-digit number
 POST http://localhost:6081/customer-insight-platform/phone-number/verify
 content-type: application/json
+Authorization: fake-token
 
 {
   "phoneNumber" : "0123456"
@@ -41,6 +46,7 @@ content-type: application/json
 ### Correct number
 POST http://localhost:6081/customer-insight-platform/phone-number/verify
 content-type: application/json
+Authorization: fake-token
 
 {
   "phoneNumber" : "07843274323"
@@ -49,6 +55,7 @@ content-type: application/json
 ### incorrect-number
 POST http://localhost:6081/customer-insight-platform/phone-number/verify
 content-type: application/json
+Authorization: fake-token
 
 {
   "phoneNumber" : "wed"

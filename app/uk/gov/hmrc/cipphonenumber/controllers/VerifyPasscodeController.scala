@@ -19,17 +19,18 @@ package uk.gov.hmrc.cipphonenumber.controllers
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
+import uk.gov.hmrc.internalauth.client.BackendAuthComponents
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class VerifyPasscodeController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector)
+class VerifyPasscodeController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector, auth: BackendAuthComponents)
                                         (implicit executionContext: ExecutionContext)
-  extends BackendController(cc) {
+  extends BackendController(cc) with InternalAuthAccess {
 
-  def verifyPasscode: Action[JsValue] = Action.async(parse.json) { implicit request =>
+  def verifyPasscode: Action[JsValue] = auth.authorizedAction[Unit](permission).compose(Action(parse.json)).async { implicit request =>
     verifyConnector.verifyPasscode(request.body) map {
       r => Status(r.status)(r.body)
     }
