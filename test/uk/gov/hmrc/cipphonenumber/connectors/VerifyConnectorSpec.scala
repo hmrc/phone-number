@@ -120,7 +120,7 @@ class VerifyConnectorSpec extends AnyWordSpec
     protected val appConfigMock = mock[AppConfig]
 
     when(appConfigMock.verificationConfig).thenReturn(CipVerificationConfig(
-      "http", wireMockHost, wireMockPort, cbConfigData))
+      "http", wireMockHost, wireMockPort, "fake-token", cbConfigData))
 
     val verifyConnector = new VerifyConnector(
       httpClientV2,
