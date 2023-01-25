@@ -50,7 +50,8 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
     withCircuitBreaker[HttpResponse](
       httpClientV2
         .post(url"$verifyUrl")
-        .transform(_.withRequestTimeout(timeout))
+        .transform(
+          _.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
         .withBody(body)
         .execute[HttpResponse]
     )
@@ -60,7 +61,8 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
     withCircuitBreaker[HttpResponse](
       httpClientV2
         .get(url"${notificationsUrl.format(notificationId)}")
-        .transform(_.withRequestTimeout(timeout))
+        .transform(
+          _.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
         .execute[HttpResponse]
     )
   }
@@ -69,7 +71,8 @@ class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
     withCircuitBreaker[HttpResponse](
       httpClientV2
         .post(url"$verifyPasscodeUrl")
-        .transform(_.withRequestTimeout(timeout))
+        .transform(
+          _.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
         .withBody(body)
         .execute[HttpResponse]
     )
