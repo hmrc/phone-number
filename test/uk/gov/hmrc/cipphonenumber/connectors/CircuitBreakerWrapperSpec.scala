@@ -17,16 +17,16 @@
 package uk.gov.hmrc.cipphonenumber.connectors
 
 import akka.stream.Materializer
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, stubFor, urlEqualTo}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.OK
-import play.api.libs.json.Json
-import play.api.libs.ws.ahc.AhcCurlRequestLogger
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.cipphonenumber.config.CircuitBreakerConfig
 import uk.gov.hmrc.cipphonenumber.utils.TestActorSystem
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -47,13 +47,11 @@ class CircuitBreakerWrapperSpec extends AnyWordSpec
   "Circuit Breakers" should {
     "not be triggered when call is successful" in new SetUp {
 
-      stubFor(post(urlEqualTo(verificationUrl)).willReturn(aResponse()))
+      stubFor(WireMock.get(urlEqualTo(verificationUrl)).willReturn(aResponse()))
 
-      val result = circuitBreakers.withCircuitBreaker(
+      private val result = circuitBreakers.withCircuitBreaker(
         httpClientV2
-          .post(url"http://$wireMockHost:$wireMockPort/customer-insight-platform/phone-number/verify")
-          .withBody(Json.obj("phoneNumber" -> "test"))
-          .transform(_.withRequestFilter(AhcCurlRequestLogger()))
+          .get(url"http://$wireMockHost:$wireMockPort/customer-insight-platform/phone-number/verify")
           .execute[HttpResponse]
       )
 
@@ -66,8 +64,9 @@ class CircuitBreakerWrapperSpec extends AnyWordSpec
 
   trait SetUp {
     protected implicit val hc: HeaderCarrier = HeaderCarrier()
-    val circuitBreakers = new CircuitBreakerWrapper {
-      override def configCB: CircuitBreakerConfig = CircuitBreakerConfig("Cip Verification", 2, 60.seconds, 60.seconds, 60.seconds, 1, 0)
+    protected val circuitBreakers: CircuitBreakerWrapper = new CircuitBreakerWrapper {
+      override def configCB: CircuitBreakerConfig =
+        CircuitBreakerConfig("Cip Verification", 2, 60.seconds, 60.seconds, 60.seconds, 1, 0)
 
       override def materializer: Materializer = Materializer(TestActorSystem.system)
     }

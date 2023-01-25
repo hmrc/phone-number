@@ -27,12 +27,13 @@ import scala.util.Try
 
 trait CircuitBreakerWrapper extends Logging {
   protected def materializer: Materializer
+
   def configCB: CircuitBreakerConfig
 
   def withCircuitBreaker[T](block: => Future[T])(implicit connectionFailure: Try[T] => Boolean): Future[T] =
     circuitBreaker.withCircuitBreaker(block, connectionFailure)
 
-  lazy val circuitBreaker = new CircuitBreaker(
+  lazy val circuitBreaker: CircuitBreaker = new CircuitBreaker(
     scheduler = materializer.system.scheduler,
     maxFailures = configCB.maxFailures, // Maximum number of failures before opening the circuit
     callTimeout = configCB.callTimeout, // time after which to consider a call a failure

@@ -24,6 +24,8 @@ import play.api.libs.json.Json
 import play.api.libs.ws.ahc.AhcCurlRequestLogger
 import uk.gov.hmrc.cipphonenumber.utils.DataSteps
 
+import scala.util.Random
+
 class VerifyPasscodeIntegrationSpec
   extends AnyWordSpec
     with Matchers
@@ -32,10 +34,12 @@ class VerifyPasscodeIntegrationSpec
     with GuiceOneServerPerSuite
     with DataSteps {
 
+  private val phoneNumberRandomizer = Random.alphanumeric.filter(_.isDigit).take(9).mkString
+
   "verify/passcode" should {
     "respond with 200 verified status with valid phone number and passcode" in {
-      val phoneNumber = "07811123456"
-      val normalisedPhoneNumber = "+447811123456"
+      val phoneNumber = s"07$phoneNumberRandomizer"
+      val normalisedPhoneNumber = s"+447$phoneNumberRandomizer"
       //generate passcode
       verify(phoneNumber).futureValue
 
@@ -69,7 +73,7 @@ class VerifyPasscodeIntegrationSpec
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse {
             s"""{
-               "phoneNumber": "07811654321",
+               "phoneNumber": "07777777777",
                "passcode": "123456"
                }""".stripMargin
           })
@@ -80,6 +84,7 @@ class VerifyPasscodeIntegrationSpec
       (response.json \ "message").as[String] shouldBe "Enter a correct passcode"
     }
 
+    // invalid request
     "respond with 400 status for invalid request" in {
       val response =
         wsClient
@@ -88,7 +93,7 @@ class VerifyPasscodeIntegrationSpec
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse {
             s"""{
-               "phoneNumber": "07811654321",
+               "phoneNumber": "07777777777",
                "passcode": ""
                }""".stripMargin
           })
