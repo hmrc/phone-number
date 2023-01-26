@@ -24,6 +24,7 @@ import uk.gov.hmrc.cipphonenumber.models.api.ErrorResponse
 import uk.gov.hmrc.cipphonenumber.models.api.ErrorResponse.{Codes, Message}
 import uk.gov.hmrc.cipphonenumber.utils.ResultBuilder
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.internalauth.client.BackendAuthComponents
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
@@ -31,13 +32,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 @Singleton()
-class NotificationController @Inject()(private val cc: ControllerComponents,
-                                       private val verifyConnector: VerifyConnector)
+class NotificationController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector,
+                                       auth: BackendAuthComponents)
                                       (implicit executionContext: ExecutionContext)
   extends BackendController(cc)
-    with Logging with ResultBuilder {
+    with Logging with ResultBuilder with InternalAuthAccess {
 
-  def status(notificationId: String): Action[AnyContent] = Action.async { implicit request =>
+  def status(notificationId: String): Action[AnyContent] = auth.authorizedAction[Unit](permission).compose(Action).async { implicit request =>
     callVerificationService(notificationId)
   }
 
