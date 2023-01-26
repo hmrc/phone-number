@@ -95,7 +95,7 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec
   trait SetUp {
     protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Authorization" -> "fake-token")
     private val expectedPredicate = {
-      Permission(Resource(ResourceType("cip-email"), ResourceLocation("*")), IAAction("*"))
+      Permission(Resource(ResourceType("cip-phone-number"), ResourceLocation("*")), IAAction("*"))
     }
     protected val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
     mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval).returns(Future.unit)
@@ -104,6 +104,6 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec
     protected val backendAuthComponentsStub: BackendAuthComponents =
       BackendAuthComponentsStub(mockStubBehaviour)(Helpers.stubControllerComponents(), Implicits.global)
     protected lazy val controller =
-      new VerifyPasscodeController(Helpers.stubControllerComponents(), mockVerifyConnector)
+      new VerifyPasscodeController(Helpers.stubControllerComponents(), mockVerifyConnector, backendAuthComponentsStub)
   }
 }

@@ -29,8 +29,8 @@ import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.internalauth.client.Predicate.Permission
-import uk.gov.hmrc.internalauth.client.test.{BackendAuthComponentsStub, StubBehaviour}
 import uk.gov.hmrc.internalauth.client._
+import uk.gov.hmrc.internalauth.client.test.{BackendAuthComponentsStub, StubBehaviour}
 
 import scala.concurrent.ExecutionContext.Implicits
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -100,15 +100,15 @@ class VerifyControllerSpec extends AnyWordSpec
     val headerValue = "header-value"
     protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Authorization" -> "fake-token")
     private val expectedPredicate = {
-      Permission(Resource(ResourceType("cip-email"), ResourceLocation("*")), IAAction("*"))
+      Permission(Resource(ResourceType("cip-phone-number"), ResourceLocation("*")), IAAction("*"))
     }
     protected val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
     mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval).returns(Future.unit)
     protected val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
-//    protected val mockMetricsService: MetricsService = mock[MetricsService]
+    //    protected val mockMetricsService: MetricsService = mock[MetricsService]
     protected val backendAuthComponentsStub: BackendAuthComponents =
       BackendAuthComponentsStub(mockStubBehaviour)(Helpers.stubControllerComponents(), Implicits.global)
     protected lazy val controller =
-      new VerifyController(Helpers.stubControllerComponents(), mockVerifyConnector)
+      new VerifyController(Helpers.stubControllerComponents(), mockVerifyConnector, backendAuthComponentsStub)
   }
 }
