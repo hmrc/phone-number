@@ -1,7 +1,7 @@
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
-val appName = "cip-phone-number"
+val appName = "phone-number"
 
 val silencerVersion = "1.7.7"
 

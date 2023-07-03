@@ -75,14 +75,14 @@ class NotificationControllerSpec extends AnyWordSpec
         .returns(Future.failed(new ConnectionException("")))
       private val response = controller.status("test-notification-id")(fakeRequest)
       status(response) shouldBe GATEWAY_TIMEOUT
-      //      mockMetricsService.recordMetric("cip-notification-status-failure") was called
+      //      mockMetricsService.recordMetric("notification-status-failure") was called
     }
   }
 
   trait SetUp {
-    protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Authorization" -> "fake-token")
+    protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Authorization" -> "local-test-token")
     private val expectedPredicate = {
-      Permission(Resource(ResourceType("cip-phone-number"), ResourceLocation("*")), IAAction("*"))
+      Permission(Resource(ResourceType("phone-number"), ResourceLocation("*")), IAAction("*"))
     }
     protected val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
     mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval).returns(Future.unit)

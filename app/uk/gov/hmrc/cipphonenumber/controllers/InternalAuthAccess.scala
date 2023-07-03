@@ -20,7 +20,7 @@ import uk.gov.hmrc.internalauth.client.{IAAction, Predicate, Resource, ResourceL
 
 trait InternalAuthAccess {
   val permission: Predicate.Permission = Predicate.Permission(Resource(
-    ResourceType("cip-phone-number"),
+    ResourceType("phone-number"),
     ResourceLocation("*")),
     IAAction("*"))
 }

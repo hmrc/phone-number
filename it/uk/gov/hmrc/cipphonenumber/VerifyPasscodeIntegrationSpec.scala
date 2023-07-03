@@ -50,7 +50,7 @@ class VerifyPasscodeIntegrationSpec
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/verify/passcode")
-          .withHttpHeaders(("Authorization", "fake-token"))
+          .withHttpHeaders(("Authorization", "local-test-token"))
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse {
             s"""{
@@ -69,7 +69,7 @@ class VerifyPasscodeIntegrationSpec
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/verify/passcode")
-          .withHttpHeaders(("Authorization", "fake-token"))
+          .withHttpHeaders(("Authorization", "local-test-token"))
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse {
             s"""{
@@ -89,7 +89,7 @@ class VerifyPasscodeIntegrationSpec
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/verify/passcode")
-          .withHttpHeaders(("Authorization", "fake-token"))
+          .withHttpHeaders(("Authorization", "local-test-token"))
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse {
             s"""{

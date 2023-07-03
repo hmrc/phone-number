@@ -34,7 +34,7 @@ trait DataSteps {
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .bindings(new PlayMongoModule)
-      .configure("mongodb.uri" -> "mongodb://localhost:27017/cip-phone-number-verification")
+      .configure("mongodb.uri" -> "mongodb://localhost:27017/phone-number-verification")
       .configure("cache.expiry" -> 1)
       .build()
 
@@ -45,13 +45,13 @@ trait DataSteps {
 
   //mimics user reading text message
   def retrievePasscode(phoneNumber: String): Future[Option[PhoneNumberAndPasscode]] = {
-    repository.get[PhoneNumberAndPasscode](phoneNumber)(DataKey("cip-phone-number-verification"))
+    repository.get[PhoneNumberAndPasscode](phoneNumber)(DataKey("phone-number-verification"))
   }
 
   def verify(phoneNumber: String): Future[WSResponse] = {
     wsClient
       .url(s"$baseUrl/customer-insight-platform/phone-number/verify")
-      .withHttpHeaders(("Authorization", "fake-token"))
+      .withHttpHeaders(("Authorization", "local-test-token"))
       .withRequestFilter(AhcCurlRequestLogger())
       .post(Json.parse {
         s"""{"phoneNumber": "$phoneNumber"}""".stripMargin
