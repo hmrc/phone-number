@@ -38,7 +38,7 @@ class HealthEndpointIntegrationSpec
       val response =
         wsClient
           .url(s"$baseUrl/ping/ping")
-          .withHttpHeaders(("Authorization", "fake-token"))
+          .withHttpHeaders(("Authorization", "local-test-token"))
           .withRequestFilter(AhcCurlRequestLogger())
           .get()
           .futureValue

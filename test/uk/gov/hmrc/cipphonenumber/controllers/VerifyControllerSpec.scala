@@ -98,9 +98,9 @@ class VerifyControllerSpec extends AnyWordSpec
   trait SetUp {
     val headerName = "header-name"
     val headerValue = "header-value"
-    protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Authorization" -> "fake-token")
+    protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Authorization" -> "local-test-token")
     private val expectedPredicate = {
-      Permission(Resource(ResourceType("cip-phone-number"), ResourceLocation("*")), IAAction("*"))
+      Permission(Resource(ResourceType("phone-number"), ResourceLocation("*")), IAAction("*"))
     }
     protected val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
     mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval).returns(Future.unit)

@@ -43,7 +43,7 @@ class VerifyIntegrationSpec
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/verify")
-          .withHttpHeaders(("Authorization", "fake-token"))
+          .withHttpHeaders(("Authorization", "local-test-token"))
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse(s"""{"phoneNumber" : "07$phoneNumberRandomizer"}"""))
           .futureValue
@@ -55,7 +55,7 @@ class VerifyIntegrationSpec
       val response =
         wsClient
           .url(s"$baseUrl/customer-insight-platform/phone-number/verify")
-          .withHttpHeaders(("Authorization", "fake-token"))
+          .withHttpHeaders(("Authorization", "local-test-token"))
           .withRequestFilter(AhcCurlRequestLogger())
           .post(Json.parse("""{"phoneNumber" : "aaaa"}"""))
           .futureValue

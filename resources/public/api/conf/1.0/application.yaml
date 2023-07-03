@@ -9,11 +9,11 @@ info:
     This is an API that allows an phone number to be verified by calling the Verify endpoint followed by the Verify Passcode endpoint.  It also provides a status API to check the status of a previous Verify request.
 
 servers:
-  - url: https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number
+  - url: https://phone-number.protected.mdtp/customer-insight-platform/phone-number
     description: QA
-  - url: https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number
+  - url: https://phone-number.protected.mdtp/customer-insight-platform/phone-number
     description: Staging
-  - url: https://cip-phone-number.protected.mdtp/customer-insight-platform/phone-number
+  - url: https://phone-number.protected.mdtp/customer-insight-platform/phone-number
     description: Production
 
 components:
@@ -126,7 +126,7 @@ paths:
         Any authorised request to this endpoint initiates a 202 response if successfully processed by the service.
         Note:  This is seperate from whether or not the phone  number was successfully delivered to the end user.  See status endpoint for more details.
       tags:
-        - cip-phone-number-microservice
+        - phone-number-microservice
       parameters:
         - $ref: '#/components/parameters/acceptHeader'
       requestBody:
@@ -174,7 +174,7 @@ paths:
         Verify a passcode for the corresponding phone number. 
         Any authorised request to this endpoint initiates a 200 response if successfully processed by the service.
       tags:
-        - cip-phone-number-microservice
+        - phone-number-microservice
       parameters:
         - $ref: '#/components/parameters/acceptHeader'
       requestBody:
@@ -242,7 +242,7 @@ paths:
         Check the delivery status of a passcode by using the url that was received in the Verify Location Response header.
         Any authorised request to this endpoint initiates a 200 response if successfully processed by the service.
       tags:
-        - cip-phone-number-microservice
+        - phone-number-microservice
       parameters:
         - $ref: '#/components/parameters/acceptHeader'
         - in: path
