@@ -40,12 +40,15 @@ trait CircuitBreakerWrapper extends Logging {
     resetTimeout = configCB.resetTimeout, // time after which to attempt to close the circuit
     maxResetTimeout = configCB.maxResetTimeout, // max time after which to attempt to close the circuit
     exponentialBackoffFactor = configCB.exponentialBackoffFactor, // exponential time gap e.g. 1 1.2 1.2+1.2*0.2
-    randomFactor = configCB.randomFactor //after calculation of the exponential back-off an additional random delay based on this factor is added, e.g. 0.2 adds up to 20% delay.
+    randomFactor =
+      configCB.randomFactor //after calculation of the exponential back-off an additional random delay based on this factor is added, e.g. 0.2 adds up to 20% delay.
   )(materializer.executionContext)
     .onOpen(logger.warn(s"Circuit breaker for ${configCB.serviceName} opened and will not close for ${configCB.resetTimeout}"))
     .onHalfOpen(logger.warn(s"Circuit breaker for ${configCB.serviceName} is half open"))
     .onClose(logger.info(s"Circuit breaker for ${configCB.serviceName} has closed"))
-    .onCallFailure(_ => logger.warn(s"Circuit breaker for ${configCB.serviceName} recorded failed call"))
+    .onCallFailure(
+      _ => logger.warn(s"Circuit breaker for ${configCB.serviceName} recorded failed call")
+    )
     .onCallBreakerOpen(logger.warn(s"Circuit breaker for ${configCB.serviceName} rejected call due to previous failures"))
     .onCallTimeout {
       elapsed =>

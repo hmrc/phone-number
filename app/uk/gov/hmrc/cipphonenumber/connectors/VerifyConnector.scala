@@ -30,55 +30,47 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class VerifyConnector @Inject()(httpClientV2: HttpClientV2, config: AppConfig)
-                               (implicit ec: ExecutionContext, val materializer: Materializer)
-  extends Logging
+class VerifyConnector @Inject() (httpClientV2: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext, val materializer: Materializer)
+    extends Logging
     with CircuitBreakerWrapper {
 
-  private val verifyPath: String = s"${config.verificationConfig.url}/customer-insight-platform/phone-number"
-  private val verifyUrl: String = s"$verifyPath/verify"
+  private val verifyPath: String        = s"${config.verificationConfig.url}/customer-insight-platform/phone-number"
+  private val verifyUrl: String         = s"$verifyPath/verify"
   private val verifyPasscodeUrl: String = s"$verifyUrl/passcode"
-  private val notificationsUrl: String = s"$verifyPath/notifications/%s"
-  private val timeout = Duration(config.httpTimeout, "milliseconds")
+  private val notificationsUrl: String  = s"$verifyPath/notifications/%s"
+  private val timeout                   = Duration(config.httpTimeout, "milliseconds")
 
   implicit val connectionFailure: Try[HttpResponse] => Boolean = {
     case Success(_) => false
     case Failure(_) => true
   }
 
-  def callVerifyEndpoint(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def verify(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     withCircuitBreaker[HttpResponse](
       httpClientV2
         .post(url"$verifyUrl")
-        .transform(
-          _.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
+        .transform(_.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
         .withBody(body)
         .execute[HttpResponse]
     )
-  }
 
-  def status(notificationId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def status(notificationId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     withCircuitBreaker[HttpResponse](
       httpClientV2
         .get(url"${notificationsUrl.format(notificationId)}")
-        .transform(
-          _.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
+        .transform(_.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
         .execute[HttpResponse]
     )
-  }
 
-  def verifyPasscode(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def verifyPasscode(body: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     withCircuitBreaker[HttpResponse](
       httpClientV2
         .post(url"$verifyPasscodeUrl")
-        .transform(
-          _.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
+        .transform(_.withRequestTimeout(timeout).withHttpHeaders(("Authorization", config.verificationConfig.authToken)))
         .withBody(body)
-        .transform(
-          _.withRequestTimeout(timeout))
+        .transform(_.withRequestTimeout(timeout))
         .execute[HttpResponse]
     )
-  }
 
   override def configCB: CircuitBreakerConfig = config.verificationConfig.cbConfig
 }

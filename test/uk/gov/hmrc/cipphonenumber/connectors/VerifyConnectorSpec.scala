@@ -32,13 +32,14 @@ import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 
-class VerifyConnectorSpec extends AnyWordSpec
-  with Matchers
-  with WireMockSupport
-  with ScalaFutures
-  with HttpClientV2Support
-  with TestActorSystem
-  with IdiomaticMockito {
+class VerifyConnectorSpec
+    extends AnyWordSpec
+    with Matchers
+    with WireMockSupport
+    with ScalaFutures
+    with HttpClientV2Support
+    with TestActorSystem
+    with IdiomaticMockito {
 
   "verify" should {
     val url: String = "/customer-insight-platform/phone-number/verify"
@@ -46,11 +47,10 @@ class VerifyConnectorSpec extends AnyWordSpec
     "delegate to http client" in new SetUp {
       stubFor(
         post(urlEqualTo(url))
-          .willReturn(aResponse().withBody("""{"res":"res"}""")
-          )
+          .willReturn(aResponse().withBody("""{"res":"res"}"""))
       )
 
-      private val result = await(verifyConnector.callVerifyEndpoint(Json.parse(s"""{"req": "req"}""")))
+      private val result = await(verifyConnector.verify(Json.parse(s"""{"req": "req"}""")))
 
       result.status shouldBe OK
       result.json shouldBe Json.parse("""{"res":"res"}""")
@@ -70,8 +70,7 @@ class VerifyConnectorSpec extends AnyWordSpec
 
       stubFor(
         get(urlEqualTo(url.format(notificationId)))
-          .willReturn(aResponse().withBody("""{"res":"res"}""")
-          )
+          .willReturn(aResponse().withBody("""{"res":"res"}"""))
       )
 
       private val result = await(verifyConnector.status(notificationId))
@@ -91,8 +90,7 @@ class VerifyConnectorSpec extends AnyWordSpec
     "delegate to http client" in new SetUp {
       stubFor(
         post(urlEqualTo(url))
-          .willReturn(aResponse().withBody("""{"res":"res"}""")
-          )
+          .willReturn(aResponse().withBody("""{"res":"res"}"""))
       )
 
       private val result = await(verifyConnector.verifyPasscode(Json.parse(s"""{"req": "req"}""".stripMargin)))
@@ -102,16 +100,15 @@ class VerifyConnectorSpec extends AnyWordSpec
 
       verify(
         postRequestedFor(urlEqualTo(url))
-          .withRequestBody(equalToJson(
-            s"""{"req": "req"}""".stripMargin))
+          .withRequestBody(equalToJson(s"""{"req": "req"}""".stripMargin))
       )
     }
   }
 
   trait SetUp {
-    protected implicit val hc: HeaderCarrier = HeaderCarrier()
+    implicit protected val hc: HeaderCarrier = HeaderCarrier()
 
-    protected val appConfigMock: AppConfig = mock[AppConfig]
+    protected val appConfigMock: AppConfig                         = mock[AppConfig]
     protected val cipVerificationConfigMock: CipVerificationConfig = mock[CipVerificationConfig]
 
     protected val cbConfigData: CircuitBreakerConfig =

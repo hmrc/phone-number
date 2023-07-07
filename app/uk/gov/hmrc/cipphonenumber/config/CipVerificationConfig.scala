@@ -19,27 +19,27 @@ package uk.gov.hmrc.cipphonenumber.config
 import play.api.{ConfigLoader, Configuration}
 
 case class CipVerificationConfig(
-                                  protocol: String,
-                                  host: String,
-                                  port: Int,
-                                  authToken: String,
-                                  cbConfig: CircuitBreakerConfig
-                                ) {
+  protocol: String,
+  host: String,
+  port: Int,
+  authToken: String,
+  cbConfig: CircuitBreakerConfig
+) {
   lazy val url: String = s"$protocol://$host:$port"
 }
 
 object CipVerificationConfig {
+
   implicit lazy val configLoader: ConfigLoader[CipVerificationConfig] =
     ConfigLoader {
-      rootConfig =>
-        path =>
-          val config = Configuration(rootConfig.getConfig(path))
-          CipVerificationConfig(
-            config.get[String]("protocol"),
-            config.get[String]("host"),
-            config.get[Int]("port"),
-            config.get[String]("auth-token"),
-            config.get[CircuitBreakerConfig]("circuit-breaker")
-          )
+      rootConfig => path =>
+        val config = Configuration(rootConfig.getConfig(path))
+        CipVerificationConfig(
+          config.get[String]("protocol"),
+          config.get[String]("host"),
+          config.get[Int]("port"),
+          config.get[String]("auth-token"),
+          config.get[CircuitBreakerConfig]("circuit-breaker")
+        )
     }
 }
