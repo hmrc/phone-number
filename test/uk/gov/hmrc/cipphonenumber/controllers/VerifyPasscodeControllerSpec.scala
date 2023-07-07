@@ -30,19 +30,17 @@ import uk.gov.hmrc.cipphonenumber.connectors.VerifyConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.internalauth.client.Predicate.Permission
 import uk.gov.hmrc.internalauth.client._
-import uk.gov.hmrc.internalauth.client.test.{BackendAuthComponentsStub, StubBehaviour}
+import uk.gov.hmrc.internalauth.client.test.StubBehaviour
 
-import scala.concurrent.ExecutionContext.Implicits
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class VerifyPasscodeControllerSpec extends AnyWordSpec
-  with Matchers
-  with IdiomaticMockito {
+class VerifyPasscodeControllerSpec extends AnyWordSpec with Matchers with IdiomaticMockito {
 
   "verifyPasscode" should {
     "convert upstream 200 response" in new SetUp {
-      mockVerifyConnector.verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
+      mockVerifyConnector
+        .verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(OK, """{"res":"res"}""")))
 
       private val response = controller.verifyPasscode(
@@ -55,7 +53,8 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec
     }
 
     "convert upstream 400 response" in new SetUp {
-      mockVerifyConnector.verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
+      mockVerifyConnector
+        .verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"res":"res"}""")))
 
       private val response = controller.verifyPasscode(
@@ -68,7 +67,8 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec
     }
 
     "convert upstream 500 response" in new SetUp {
-      mockVerifyConnector.verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
+      mockVerifyConnector
+        .verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
       private val response = controller.verifyPasscode(
@@ -80,7 +80,8 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec
     }
 
     "handle connection exception" in new SetUp {
-      mockVerifyConnector.verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
+      mockVerifyConnector
+        .verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
         .returns(Future.failed(new ConnectionException("")))
 
       private val response = controller.verifyPasscode(
@@ -94,16 +95,14 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec
 
   trait SetUp {
     protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Authorization" -> "local-test-token")
-    private val expectedPredicate = {
+
+    private val expectedPredicate =
       Permission(Resource(ResourceType("phone-number"), ResourceLocation("*")), IAAction("*"))
-    }
     protected val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
     mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval).returns(Future.unit)
     protected val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
-    //    protected val mockMetricsService: MetricsService = mock[MetricsService]
-    protected val backendAuthComponentsStub: BackendAuthComponents =
-      BackendAuthComponentsStub(mockStubBehaviour)(Helpers.stubControllerComponents(), Implicits.global)
+
     protected lazy val controller =
-      new VerifyPasscodeController(Helpers.stubControllerComponents(), mockVerifyConnector, backendAuthComponentsStub)
+      new VerifyPasscodeController(Helpers.stubControllerComponents(), mockVerifyConnector)
   }
 }

@@ -21,6 +21,7 @@ import play.api.mvc.Results.Status
 import uk.gov.hmrc.http.HttpResponse
 
 trait ResultBuilder {
+
   def processHttpResponse(response: HttpResponse): Result = {
     val headers = response.headers.toSeq flatMap {
       case (parameter, values) =>

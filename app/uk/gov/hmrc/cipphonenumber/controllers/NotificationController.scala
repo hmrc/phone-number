@@ -32,22 +32,24 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 @Singleton()
-class NotificationController @Inject()(cc: ControllerComponents, verifyConnector: VerifyConnector,
-                                       auth: BackendAuthComponents)
-                                      (implicit executionContext: ExecutionContext)
-  extends BackendController(cc)
-    with Logging with ResultBuilder with InternalAuthAccess {
+class NotificationController @Inject() (cc: ControllerComponents, verifyConnector: VerifyConnector, auth: BackendAuthComponents)(implicit
+  executionContext: ExecutionContext
+) extends BackendController(cc)
+    with Logging
+    with ResultBuilder
+    with InternalAuthAccess {
 
-  def status(notificationId: String): Action[AnyContent] = auth.authorizedAction[Unit](permission).compose(Action).async { implicit request =>
-    callVerificationService(notificationId)
+  def status(notificationId: String): Action[AnyContent] = auth.authorizedAction[Unit](permission).compose(Action).async {
+    implicit request =>
+      callVerificationService(notificationId)
   }
 
-  private def callVerificationService(notificationId: String)(implicit hc: HeaderCarrier): Future[Result] = {
+  private def callVerificationService(notificationId: String)(implicit hc: HeaderCarrier): Future[Result] =
     verifyConnector.status(notificationId).transformWith {
-      case Success(response) => Future.successful(processHttpResponse(response))
+      case Success(response) =>
+        Future.successful(processHttpResponse(response))
       case Failure(_) =>
         logger.error(s"An unexpected error has occurred")
         Future.successful(GatewayTimeout(Json.toJson(ErrorResponse(Codes.SERVER_CURRENTLY_UNAVAILABLE.id, Message.SERVER_CURRENTLY_UNAVAILABLE))))
     }
-  }
 }
