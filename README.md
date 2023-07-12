@@ -47,19 +47,19 @@ For reference here are the details for running each of the services individually
 
     -XPOST -H "Content-type: application/json" -H "Authorization: k8ZPlzVV-aZ8n8qjiTIEca2Eey00LCz0QyjdADVg78rOv37Min82skYG7veJtzYtKTtmVFay1" -d '{
 	    "phoneNumber": "<phone-number>"
-    }' 'https://phone-number.protected.mdtp/customer-insight-platform/phone-number/verify'
+    }' 'https://phone-number.protected.mdtp/phone-number/verify'
 
 #### Check notification status
 
     -XGET -H "Content-type: application/json" -H "Authorization: k8ZPlzVV-aZ8n8qjiTIEca2Eey00LCz0QyjdADVg78rOv37Min82skYG7veJtzYtKTtmVFay1"
-    'https://phone-number.protected.mdtp/customer-insight-platform/phone-number/notifications/<notificationId>'
+    'https://phone-number.protected.mdtp/phone-number/notifications/<notificationId>'
 
 #### Verify passcode
 
     -XPOST -H "Content-type: application/json" -H "Authorization: k8ZPlzVV-aZ8n8qjiTIEca2Eey00LCz0QyjdADVg78rOv37Min82skYG7veJtzYtKTtmVFay1" -d '{
 	    "phoneNumber": "<phone-number>",
         "passcode": "<passcode>"
-    }' 'https://phone-number.protected.mdtp/customer-insight-platform/phone-number/verify/passcode'
+    }' 'https://phone-number.protected.mdtp/phone-number/verify/passcode'
 
 ### License
 

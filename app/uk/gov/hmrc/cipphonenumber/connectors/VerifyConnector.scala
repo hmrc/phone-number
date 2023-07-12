@@ -34,7 +34,7 @@ class VerifyConnector @Inject() (httpClientV2: HttpClientV2, config: AppConfig)(
     extends Logging
     with CircuitBreakerWrapper {
 
-  private val verifyPath: String        = s"${config.verificationConfig.url}/customer-insight-platform/phone-number"
+  private val verifyPath: String        = s"${config.verificationConfig.url}/phone-number"
   private val verifyUrl: String         = s"$verifyPath/verify"
   private val verifyPasscodeUrl: String = s"$verifyUrl/passcode"
   private val notificationsUrl: String  = s"$verifyPath/notifications/%s"

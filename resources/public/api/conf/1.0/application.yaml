@@ -9,11 +9,11 @@ info:
     This is an API that allows an phone number to be verified by calling the Verify endpoint followed by the Verify Passcode endpoint.  It also provides a status API to check the status of a previous Verify request.
 
 servers:
-  - url: https://phone-number.protected.mdtp/customer-insight-platform/phone-number
+  - url: https://phone-number.protected.mdtp/phone-number
     description: QA
-  - url: https://phone-number.protected.mdtp/customer-insight-platform/phone-number
+  - url: https://phone-number.protected.mdtp/phone-number
     description: Staging
-  - url: https://phone-number.protected.mdtp/customer-insight-platform/phone-number
+  - url: https://phone-number.protected.mdtp/phone-number
     description: Production
 
 components:
