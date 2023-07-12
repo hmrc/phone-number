@@ -1,5 +1,5 @@
 ### Correct-number
-POST http://localhost:6081/customer-insight-platform/phone-number/verify
+POST http://localhost:6081/phone-number/verify
 content-type: application/json
 Authorization: fake-token
 
@@ -8,7 +8,7 @@ Authorization: fake-token
 }
 
 ### Non-numeric
-POST http://localhost:6081/customer-insight-platform/phone-number/verify
+POST http://localhost:6081/phone-number/verify
 content-type: application/json
 Authorization: fake-token
 
@@ -17,7 +17,7 @@ Authorization: fake-token
 }
 
 ### Three-digit number
-POST http://localhost:6081/customer-insight-platform/phone-number/verify
+POST http://localhost:6081/phone-number/verify
 content-type: application/json
 Authorization: fake-token
 
@@ -26,7 +26,7 @@ Authorization: fake-token
 }
 
 ### 20-digit number
-POST http://localhost:6081/customer-insight-platform/phone-number/verify
+POST http://localhost:6081/phone-number/verify
 content-type: application/json
 Authorization: fake-token
 
@@ -35,7 +35,7 @@ Authorization: fake-token
 }
 
 ### 7-digit number
-POST http://localhost:6081/customer-insight-platform/phone-number/verify
+POST http://localhost:6081/phone-number/verify
 content-type: application/json
 Authorization: fake-token
 
@@ -44,7 +44,7 @@ Authorization: fake-token
 }
 
 ### Correct number
-POST http://localhost:6081/customer-insight-platform/phone-number/verify
+POST http://localhost:6081/phone-number/verify
 content-type: application/json
 Authorization: fake-token
 
@@ -53,12 +53,10 @@ Authorization: fake-token
 }
 
 ### incorrect-number
-POST http://localhost:6081/customer-insight-platform/phone-number/verify
+POST http://localhost:6081/phone-number/verify
 content-type: application/json
 Authorization: fake-token
 
 {
   "phoneNumber" : "wed"
 }
-
-

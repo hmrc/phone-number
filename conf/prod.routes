@@ -1,5 +1,5 @@
 # Add all the application routes to the app.routes file
-->         /customer-insight-platform/phone-number              app.Routes
+->         /phone-number              app.Routes
 ->         /                                                    health.Routes
 ->         /api                                                 definition.Routes
 

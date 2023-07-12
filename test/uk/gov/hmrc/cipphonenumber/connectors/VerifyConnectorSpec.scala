@@ -42,7 +42,7 @@ class VerifyConnectorSpec
     with IdiomaticMockito {
 
   "verify" should {
-    val url: String = "/customer-insight-platform/phone-number/verify"
+    val url: String = "/phone-number/verify"
 
     "delegate to http client" in new SetUp {
       stubFor(
@@ -63,7 +63,7 @@ class VerifyConnectorSpec
   }
 
   "status" should {
-    val url: String = "/customer-insight-platform/phone-number/notifications/%s"
+    val url: String = "/phone-number/notifications/%s"
 
     "delegate to http client" in new SetUp {
       val notificationId = "test-notification-id"
@@ -85,7 +85,7 @@ class VerifyConnectorSpec
   }
 
   "verifyPasscode" should {
-    val url: String = "/customer-insight-platform/phone-number/verify/passcode"
+    val url: String = "/phone-number/verify/passcode"
 
     "delegate to http client" in new SetUp {
       stubFor(

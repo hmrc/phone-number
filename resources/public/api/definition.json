@@ -3,7 +3,7 @@
   "api": {
     "name": "CIP phone number Open API Example",
     "description": "This is an API that allows an phone number to be verified.  It also provides a status API to check the status of a previous verify request.",
-    "context": "/customer-insight-platform/phone-number",
+    "context": "misc/phone-number",
     "versions": [
       {
         "version": "1.0",

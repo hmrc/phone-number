@@ -36,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 
 class CircuitBreakerWrapperSpec extends AnyWordSpec with Matchers with WireMockSupport with ScalaFutures with HttpClientV2Support with TestActorSystem {
 
-  val verificationUrl: String  = "/customer-insight-platform/phone-number/verify"
+  val verificationUrl: String  = "/phone-number/verify"
   val notificationsUrl: String = s"/v2/notifications/test-test"
 
   "Circuit Breakers" should {
@@ -46,7 +46,7 @@ class CircuitBreakerWrapperSpec extends AnyWordSpec with Matchers with WireMockS
 
       private val result = circuitBreakers.withCircuitBreaker(
         httpClientV2
-          .get(url"http://$wireMockHost:$wireMockPort/customer-insight-platform/phone-number/verify")
+          .get(url"http://$wireMockHost:$wireMockPort/phone-number/verify")
           .execute[HttpResponse]
       )
 
