@@ -1,18 +1,15 @@
-import play.sbt.PlayImport.*
 import sbt.*
 
 object AppDependencies {
-
-  val hmrcBootstrapVersion = "7.2.0"
+  private val bootstrapPlayVersion = "8.1.0"
 
   val compile = Seq(
-    "uk.gov.hmrc"       %% "bootstrap-backend-play-28"    % hmrcBootstrapVersion,
-    "uk.gov.hmrc"       %% "internal-auth-client-play-28" % "1.2.0"
+    "uk.gov.hmrc" %% "bootstrap-backend-play-30"    % bootstrapPlayVersion,
+    "uk.gov.hmrc" %% "internal-auth-client-play-30" % "1.9.0"
   )
 
   val test = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-test-play-28"     % hmrcBootstrapVersion    % "test, it",
-    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-28"    % "0.71.0"                % "test, it",
-    "org.mockito"             %% "mockito-scala"              % "1.17.12"               % Test
+    "uk.gov.hmrc"       %% "bootstrap-test-play-30"  % bootstrapPlayVersion % Test,
+    "uk.gov.hmrc.mongo" %% "hmrc-mongo-test-play-30" % "1.6.0"              % Test
   )
 }

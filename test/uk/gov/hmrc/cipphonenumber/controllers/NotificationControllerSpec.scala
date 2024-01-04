@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.cipphonenumber.controllers
 
-import akka.stream.ConnectionException
-import org.mockito.ArgumentMatchersSugar.any
-import org.mockito.IdiomaticMockito
+import org.apache.pekko.stream.ConnectionException
+import org.mockito.ArgumentMatchers.{eq => meq, _}
+import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.{BAD_REQUEST, GATEWAY_TIMEOUT, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
@@ -36,13 +37,15 @@ import scala.concurrent.ExecutionContext.Implicits
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class NotificationControllerSpec extends AnyWordSpec with Matchers with IdiomaticMockito {
+class NotificationControllerSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
   "status" should {
     "convert upstream 200 response" in new SetUp {
-      mockVerifyConnector
-        .status("test-notification-id")(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(OK, """{"m":"m"}""")))
+      when(
+        mockVerifyConnector
+          .status(meq("test-notification-id"))(any[HeaderCarrier])
+      )
+        .thenReturn(Future.successful(HttpResponse(OK, """{"m":"m"}""")))
 
       private val response = controller.status("test-notification-id")(fakeRequest)
       status(response) shouldBe OK
@@ -51,9 +54,11 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with Idiomati
     }
 
     "convert upstream 400 response" in new SetUp {
-      mockVerifyConnector
-        .status("test-notification-id")(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"m":"m"}""")))
+      when(
+        mockVerifyConnector
+          .status(meq("test-notification-id"))(any[HeaderCarrier])
+      )
+        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, """{"m":"m"}""")))
 
       private val response = controller.status("test-notification-id")(fakeRequest)
       status(response) shouldBe BAD_REQUEST
@@ -62,9 +67,11 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with Idiomati
     }
 
     "convert upstream 500 response" in new SetUp {
-      mockVerifyConnector
-        .status("test-notification-id")(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
+      when(
+        mockVerifyConnector
+          .status(meq("test-notification-id"))(any[HeaderCarrier])
+      )
+        .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
       private val response = controller.status("test-notification-id")(fakeRequest)
       status(response) shouldBe INTERNAL_SERVER_ERROR
@@ -72,9 +79,11 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with Idiomati
     }
 
     "handle connection exception" in new SetUp {
-      mockVerifyConnector
-        .status("test-notification-id")(any[HeaderCarrier])
-        .returns(Future.failed(new ConnectionException("")))
+      when(
+        mockVerifyConnector
+          .status(meq("test-notification-id"))(any[HeaderCarrier])
+      )
+        .thenReturn(Future.failed(new ConnectionException("")))
       private val response = controller.status("test-notification-id")(fakeRequest)
       status(response) shouldBe GATEWAY_TIMEOUT
       //      mockMetricsService.recordMetric("notification-status-failure") was called
@@ -87,7 +96,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with Idiomati
     private val expectedPredicate =
       Permission(Resource(ResourceType("phone-number"), ResourceLocation("*")), IAAction("*"))
     protected val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
-    mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval).returns(Future.unit)
+    when(mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval)).thenReturn(Future.unit)
     protected val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
 
     //    protected val mockMetricsService: MetricsService = mock[MetricsService]

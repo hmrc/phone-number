@@ -17,10 +17,11 @@
 package uk.gov.hmrc.cipphonenumber.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.mockito.IdiomaticMockito
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
@@ -39,7 +40,7 @@ class VerifyConnectorSpec
     with ScalaFutures
     with HttpClientV2Support
     with TestActorSystem
-    with IdiomaticMockito {
+    with MockitoSugar {
 
   "verify" should {
     val url: String = "/phone-number/verify"
@@ -114,9 +115,9 @@ class VerifyConnectorSpec
     protected val cbConfigData: CircuitBreakerConfig =
       CircuitBreakerConfig("", 5, 5.minutes, 30.seconds, 5.minutes, 1, 0)
 
-    appConfigMock.verificationConfig returns cipVerificationConfigMock
-    cipVerificationConfigMock.cbConfig returns cbConfigData
-    cipVerificationConfigMock.url returns wireMockUrl
+    when(appConfigMock.verificationConfig).thenReturn(cipVerificationConfigMock)
+    when(cipVerificationConfigMock.cbConfig).thenReturn(cbConfigData)
+    when(cipVerificationConfigMock.url).thenReturn(wireMockUrl)
 
     val verifyConnector = new VerifyConnector(
       httpClientV2,
