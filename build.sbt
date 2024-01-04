@@ -1,4 +1,7 @@
-import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
+import uk.gov.hmrc.DefaultBuildSettings
+
+ThisBuild / majorVersion := 0
+ThisBuild / scalaVersion := "2.13.12"
 
 val appName = "phone-number"
 
@@ -21,34 +24,29 @@ lazy val scalaCompilerOptions = Seq(
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(
-    majorVersion := 0,
-    scalaVersion := "2.13.8",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
-    // ***************
-    // Use the silencer plugin to suppress warnings
-    scalacOptions ++= scalaCompilerOptions,
-    scalacOptions += "-Wconf:src=routes/.*:s",
-    scalacOptions ++= Seq(
-      "-Wconf:src=routes/.*:s",
-      "-Wconf:src=.+/test/.+:s",
-      "-Wconf:cat=deprecation&msg=\\.*()\\.*:s",
-      "-Wconf:cat=unused-imports&site=<empty>:s",
-      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-      "-Wconf:cat=unused&src=.*Routes\\.scala:s"
-    )
+    scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s"
   )
   .settings(
     Compile / scalafmtOnCompile := true,
-    Test / scalafmtOnCompile := true,
-    IntegrationTest / scalafmtOnCompile := true,
+    Test / scalafmtOnCompile    := true
+  )
+  .settings(
+    buildInfoKeys    := Seq[BuildInfoKey](version),
+    buildInfoPackage := "buildinfo"
   )
   .settings(
     PlayKeys.playDefaultPort := 6081
   )
-  .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(CodeCoverageSettings.settings: _*)
+
+lazy val it = project
+  .in(file("it"))
+  .enablePlugins(play.sbt.PlayScala)
+  .dependsOn(microservice % "test->test")
+  .settings(DefaultBuildSettings.itSettings())
+  .settings(Test / fork := true)
   .settings(
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
+    Test / scalafmtOnCompile := true
   )

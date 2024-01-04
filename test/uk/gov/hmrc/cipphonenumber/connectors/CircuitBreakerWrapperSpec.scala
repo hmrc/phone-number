@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cipphonenumber.connectors
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, stubFor, urlEqualTo}
 import org.scalatest.concurrent.ScalaFutures

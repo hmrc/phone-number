@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.cipphonenumber.controllers
 
-import akka.stream.ConnectionException
-import org.mockito.ArgumentMatchersSugar.any
-import org.mockito.IdiomaticMockito
+import org.apache.pekko.stream.ConnectionException
+import org.mockito.ArgumentMatchers.{eq => meq, _}
+import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.{BAD_REQUEST, GATEWAY_TIMEOUT, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
@@ -35,13 +36,15 @@ import uk.gov.hmrc.internalauth.client.test.StubBehaviour
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class VerifyPasscodeControllerSpec extends AnyWordSpec with Matchers with IdiomaticMockito {
+class VerifyPasscodeControllerSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
   "verifyPasscode" should {
     "convert upstream 200 response" in new SetUp {
-      mockVerifyConnector
-        .verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(OK, """{"res":"res"}""")))
+      when(
+        mockVerifyConnector
+          .verifyPasscode(meq(Json.parse("""{"req":"req"}""")))(any[HeaderCarrier])
+      )
+        .thenReturn(Future.successful(HttpResponse(OK, """{"res":"res"}""")))
 
       private val response = controller.verifyPasscode(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
@@ -53,9 +56,11 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec with Matchers with Idioma
     }
 
     "convert upstream 400 response" in new SetUp {
-      mockVerifyConnector
-        .verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(BAD_REQUEST, """{"res":"res"}""")))
+      when(
+        mockVerifyConnector
+          .verifyPasscode(meq(Json.parse("""{"req":"req"}""")))(any[HeaderCarrier])
+      )
+        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, """{"res":"res"}""")))
 
       private val response = controller.verifyPasscode(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
@@ -67,9 +72,11 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec with Matchers with Idioma
     }
 
     "convert upstream 500 response" in new SetUp {
-      mockVerifyConnector
-        .verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
+      when(
+        mockVerifyConnector
+          .verifyPasscode(meq(Json.parse("""{"req":"req"}""")))(any[HeaderCarrier])
+      )
+        .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
       private val response = controller.verifyPasscode(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
@@ -80,9 +87,11 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec with Matchers with Idioma
     }
 
     "handle connection exception" in new SetUp {
-      mockVerifyConnector
-        .verifyPasscode(Json.parse("""{"req":"req"}"""))(any[HeaderCarrier])
-        .returns(Future.failed(new ConnectionException("")))
+      when(
+        mockVerifyConnector
+          .verifyPasscode(meq(Json.parse("""{"req":"req"}""")))(any[HeaderCarrier])
+      )
+        .thenReturn(Future.failed(new ConnectionException("")))
 
       private val response = controller.verifyPasscode(
         fakeRequest.withBody(Json.parse("""{"req":"req"}"""))
@@ -99,7 +108,7 @@ class VerifyPasscodeControllerSpec extends AnyWordSpec with Matchers with Idioma
     private val expectedPredicate =
       Permission(Resource(ResourceType("phone-number"), ResourceLocation("*")), IAAction("*"))
     protected val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
-    mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval).returns(Future.unit)
+    when(mockStubBehaviour.stubAuth(Some(expectedPredicate), Retrieval.EmptyRetrieval)).thenReturn(Future.unit)
     protected val mockVerifyConnector: VerifyConnector = mock[VerifyConnector]
 
     protected lazy val controller =
