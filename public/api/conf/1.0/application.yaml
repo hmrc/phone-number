@@ -1,13 +1,11 @@
-
+---
 openapi: "3.0.3"
-
 info:
-  version: 1.0.0
   title: CIP phone number API
-  description: |
-    # Overview
-    This is an API that allows an phone number to be verified by calling the Verify endpoint followed by the Verify Passcode endpoint.  It also provides a status API to check the status of a previous Verify request.
-
+  version: 1.0.0
+  contact:
+    name: "CIP Insights & Reputation Team"
+    email: "cip-insights-and-reputation-g@digital.hmrc.gov.uk"
 servers:
   - url: https://phone-number.protected.mdtp/phone-number
     description: QA
@@ -15,108 +13,6 @@ servers:
     description: Staging
   - url: https://phone-number.protected.mdtp/phone-number
     description: Production
-
-components:
-  schemas:
-    VerifyRequest: {
-      type: object,
-      properties: {
-        phoneNumber: {
-          type: "string",
-          required: true
-        }
-      }
-    }
-    VerifyPasscodeRequest: {
-      type: object,
-      properties: {
-        phoneNumber: {
-          type: "string",
-          required: true
-        },
-        passcode: {
-          type: "string",
-          required: true
-        }
-      }
-    }
-    ErrorResponse: {
-      type: object,
-      properties: {
-        code: {
-          type: "integer",
-        },
-        message: {
-          type: "string"
-        }
-      }
-    }
-    VerifyUnsuccessfulResponse: {
-      type: object,
-      properties: {
-        status: {
-          type: "string"
-        },
-        message: {
-          type: "string"
-        }
-      }
-    }
-    VerifyPasscodeResponse: {
-      type: object,
-      properties: {
-        message: {
-          type: "string"
-        }
-      }
-    }
-    NotificationStatusResponse: {
-      type: object,
-      properties: {
-        notificationStatus: {
-          type: "string"
-        },
-        message: {
-          type: "string"
-        }
-      }
-    }
-  responses:
-    badOrExpiredTokenResponse:
-      description: |
-        Bad or expired token.
-        This can happen if the user or HMRC revoked or expired an access token.
-        To fix, you should re-authenticate the user.
-      content:
-        application/json:
-          example:
-    forbiddenResponse:
-      description: |
-        Bad OAuth request (wrong consumer key, bad nonce, expired
-        timestamp...). Unfortunately, re-authenticating the user won't help here.
-      content:
-        application/json:
-          example:
-  parameters:
-    acceptHeader:
-      name: Accept
-      in: header
-      schema:
-        type: string
-        enum: [
-          "application/json"
-        ]
-      required: true
-  securitySchemes:
-    applicationRestricted:
-      type: jwt
-      description: |
-        HMRC supports JWT auth tokens for authenticating application restricted API requests using an encrypted Authorisation Token in the AUTHORIZATION header.
-           See https://confluence.tools.tax.service.gov.uk/display/PLATOPS/Internal+Auth+-+Requesting+Access for details.
-      flows:
-        clientCredentials:
-          tokenUrl: https://github.com/hmrc/internal-auth/blob/main/README.md#api
-          scopes: {}
 paths:
   /verify:
     post:
@@ -166,7 +62,7 @@ paths:
                   "message": "Enter a valid telephone number"
                 }
       security:
-        - applicationRestricted: []
+        - applicationRestricted: [ ]
   /verifyPasscode:
     post:
       summary: Verify a passcode
@@ -318,3 +214,83 @@ paths:
                 }
       security:
         - applicationRestricted: [ ]
+components:
+  schemas:
+    VerifyRequest:
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+      required:
+        - phoneNumber
+    VerifyPasscodeRequest:
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+        passcode:
+          type: string
+      required:
+        - phoneNumber
+        - passcode
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: "integer"
+        message:
+          type: string
+    VerifyUnsuccessfulResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+    VerifyPasscodeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    NotificationStatusResponse:
+      type: object
+      properties:
+        notificationStatus:
+          type: string
+        message:
+          type: string
+  responses:
+    badOrExpiredTokenResponse:
+      description: |
+        Bad or expired token.
+        This can happen if the user or HMRC revoked or expired an access token.
+        To fix, you should re-authenticate the user.
+      content:
+        application/json:
+          example:
+    forbiddenResponse:
+      description: |
+        Bad OAuth request (wrong consumer key, bad nonce, expired
+        timestamp...). Unfortunately, re-authenticating the user won't help here.
+      content:
+        application/json:
+          example:
+  parameters:
+    acceptHeader:
+      name: Accept
+      in: header
+      schema:
+        type: string
+        enum: [
+          "application/json"
+        ]
+      required: true
+  securitySchemes:
+    applicationRestricted:
+      type: "oauth2"
+      description: |
+        HMRC supports OAuth 2.0 for authenticating application restricted API requests using an OAuth 2.0 Bearer Token in the AUTHORIZATION header. See https://developer.service.hmrc.gov.uk/api-documentation/docs authorisation/application-restricted-endpoints for details.
+      flows:
+        clientCredentials:
+          tokenUrl: "https://api.service.hmrc.gov.uk/oauth/token"
+          scopes: {}
